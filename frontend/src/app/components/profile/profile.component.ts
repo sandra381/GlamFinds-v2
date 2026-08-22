@@ -1,0 +1,127 @@
+import { Component, OnInit } from '@angular/core';
+import { ActivatedRoute, Router } from '@angular/router';
+import { Comments } from 'src/app/models/Comments';
+import { Comments2 } from 'src/app/models/Comments2';
+import { Likes } from 'src/app/models/Likes';
+import { Likes_cant } from 'src/app/models/Likes_cant';
+import { Posts } from 'src/app/models/Posts';
+import { Save } from 'src/app/models/Save';
+import { BackendService } from 'src/app/services/backend.service';
+import { Perfil } from 'src/app/models/Perfil';
+import { Usuario2 } from 'src/app/models/Usuario2';
+
+import { MatDialog } from '@angular/material/dialog';
+import { Usuario } from 'src/app/models/Usuario';
+import { ModificarCommComponent } from '../modificar-comm/modificar-comm.component';
+import { Articulos } from 'src/app/models/Articulos';
+import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
+import { MatSnackBar } from '@angular/material/snack-bar';
+
+
+@Component({
+  selector: 'app-profile',
+  templateUrl: './profile.component.html',
+  styleUrls: ['./profile.component.css']
+})
+export class ProfileComponent implements OnInit {
+  fomGroup: FormGroup = new FormGroup({});
+  comicControl = new FormControl('', Validators.required);
+  selectFormControl = new FormControl('', Validators.required);
+  msg = '';
+  imgUrl= "";
+  posts_generales: any={
+      id:0,
+      usuario:'',
+      descripcion:'',
+      imagen:''
+
+  }
+  dataSource: any[] = [];
+  dataSource5: any[] = [];
+  activeTab = 'publicaciones';
+
+  followersCount: number = 0;
+  followingCount: number = 0;
+  postsCount: number = 0;
+
+  constructor(private fb: FormBuilder,private router:Router, private backend4:BackendService,private activateRouter:ActivatedRoute,public snackBar: MatSnackBar,public dialog: MatDialog) {}
+  ngOnInit(): void {
+    const id_new = localStorage.getItem('ids');
+    if(id_new){
+      const userId = Number(id_new);
+      this.backend4.obtenerUsuario(userId).subscribe(x=>{
+        this.posts_generales.usuario = x.datos[0].usuario;
+        this.posts_generales.descripcion=x.datos[0].descripcion;
+        this.posts_generales.imagen =x.datos[0].imagen;
+        console.log(x.datos[0]);
+      });
+      this.backend4.PostPerfil(userId).subscribe((x: any) => {
+        this.dataSource = x.datos || x || [];
+      });
+      this.backend4.obtenerArticulos().subscribe((x: any) => {
+        this.dataSource5 = x.datos || x || [];
+      });
+      this.backend4.getUserStats(userId).subscribe(stats => {
+          this.followersCount = stats.followers;
+          this.followingCount = stats.following;
+          this.postsCount = stats.posts;
+        },
+        error => console.error('Error al cargar estadísticas', error)
+      );
+    }
+  }
+
+
+  isImage(fileName: string): boolean {
+    if (!fileName) return false;
+    return /\.(jpg|jpeg|png|gif|webp|avif)$/i.test(fileName);
+  }
+  guardarModificar() {
+    const id_new = localStorage.getItem('ids');
+    if (id_new) {
+      const formData = new FormData();
+      formData.append('usuario', this.posts_generales.usuario);
+      formData.append('descripcion', this.posts_generales.descripcion);
+      if (this.msg) {
+        formData.append('imagen', this.msg);
+      } else {
+        formData.append('imagen', this.posts_generales.imagen);
+      }
+      this.backend4.editarPosts2(Number(id_new), formData).subscribe(
+        (response: any) => {
+          if (response.status === 1) {
+            this.snackBar.open('¡Modificaciones realizadas con éxito! 🚀💫🌈', 'Cerrar', {
+              duration: 4000,
+            });
+            this.regresar();
+          } else {
+            this.snackBar.open('Error al actualizar el perfil. Intente nuevamente.', 'Cerrar', {
+              duration: 4000,
+            });
+          }
+        },(error) => {
+          console.error('Error al actualizar el perfil:', error);
+          this.snackBar.open('Error en el servidor. Intente más tarde.', 'Cerrar', {
+            duration: 4000,
+          });
+        }
+      );
+    }
+  }
+  regresar() {
+    this.router.navigateByUrl("/perfil");
+  }
+  imagenSelect(event: any) {
+    if (event.target.files.length > 0) {
+      const file = event.target.files[0];
+      const reader = new FileReader();
+      reader.readAsDataURL(file);
+      reader.onload = (e: any) => {
+        this.imgUrl = e.target.result;
+      };
+      this.msg = file;
+    } else {
+      console.error('No se seleccionó ningún archivo');
+    }
+  }
+}
