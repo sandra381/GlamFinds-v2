@@ -44,10 +44,10 @@ Thumbs.db
 .claude/
 
 ai_service/models
-/ai_service/filtro
+ai_service/filtro
 
 requierements.txt
-
+frontend/.angular
 .env
 ai_service/venv39
 .vs
@@ -55,3 +55,5 @@ ai_service/venv39
 ai_service/__pycache__
 
 frontend/src/assets/img
+frontend/.angular/cache/16.2.16
+frontend/.angular/cache/

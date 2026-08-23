@@ -1,19 +1,7 @@
 import { Component, OnInit } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
-import { Comments } from 'src/app/models/Comments';
-import { Comments2 } from 'src/app/models/Comments2';
-import { Likes } from 'src/app/models/Likes';
-import { Likes_cant } from 'src/app/models/Likes_cant';
-import { Posts } from 'src/app/models/Posts';
-import { Save } from 'src/app/models/Save';
 import { BackendService } from 'src/app/services/backend.service';
-import { Perfil } from 'src/app/models/Perfil';
-import { Usuario2 } from 'src/app/models/Usuario2';
-
 import { MatDialog } from '@angular/material/dialog';
-import { Usuario } from 'src/app/models/Usuario';
-import { ModificarCommComponent } from '../modificar-comm/modificar-comm.component';
-import { Articulos } from 'src/app/models/Articulos';
 import { FormBuilder, FormControl, FormGroup, Validators } from '@angular/forms';
 import { MatSnackBar } from '@angular/material/snack-bar';
 

@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { FormControl, Validators, FormsModule, ReactiveFormsModule, FormGroup, FormBuilder} from '@angular/forms';
+import { FormControl, Validators,FormGroup, FormBuilder} from '@angular/forms';
 import { Router } from '@angular/router';
 import { MatDialogRef } from '@angular/material/dialog';
 import { Usuario } from 'src/app/models/Usuario';

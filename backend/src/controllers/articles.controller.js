@@ -3,20 +3,38 @@ const conn = require('../config/database');
 // ===== CRUD ARTÍCULOS =====
 exports.createArticle = (req, res) => {
     const { titulo, contenido, autor, categoria } = req.body;
+    const imagen = req.file ? req.file.filename : ''; 
+
+    if (!titulo || !contenido || !autor || !categoria) {
+        return res.status(400).json({
+            status: 0,
+            mensaje: "Faltan campos obligatorios: titulo, contenido, autor, categoria"
+        });
+    }
+
+    const imagenFinal = imagen || '';  
+
     const query = `INSERT INTO posts_articulos (titulo, contenido, imagen, autor, categoria) VALUES (?, ?, ?, ?, ?)`;
-    const values = [titulo, contenido, "", autor, categoria];
+    const values = [titulo, contenido, imagenFinal, autor, categoria];
+
     conn.query(query, values, (error, filas) => {
         if (error) {
             console.error(error);
-            return res.json({ status: 0, mensaje: "Error al insertar en la BD", datos: [] });
-        } else {
-            return res.json({ status: 1, mensaje: "Artículo ingresado con éxito", datos: filas });
+            return res.status(500).json({ 
+                status: 0, 
+                mensaje: "Error al insertar en la BD", 
+                error: error.message 
+            });
         }
+        return res.json({ 
+            status: 1, 
+            mensaje: "Artículo ingresado con éxito", 
+            datos: filas 
+        });
     });
 };
-
 exports.getArticles = (req, res) => {
-    let obtener = 'SELECT p.id_post, p.titulo, p.contenido, p.imagen, u.id_user, u.usuario, c.id_categoria, c.name_categoria FROM posts_articulos p, usuarios u, categorias c WHERE p.autor = u.id_user AND p.categoria = c.id_categoria ORDER BY p.id_post ASC';
+    let obtener = 'SELECT p.id_post, p.titulo, p.contenido, p.imagen, u.id_user, u.usuario, c.id_categoria, c.name_categoria FROM posts_articulos p, usuarios u, categorias c WHERE p.autor = u.id_user AND p.categoria = c.id_categoria ORDER BY p.id_post DESC';
     conn.query(obtener, (error, filas) => {
         if (error) {
             res.json({ status: 0, mensaje: "No hay valores en la BD", datos: [] });

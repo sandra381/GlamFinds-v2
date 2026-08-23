@@ -7,7 +7,7 @@ const path = require('path');
 // Configuración de multer (ajusta la ruta)
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'C:\\Users\\danie\\OneDrive\\Escritorio\\Proyecto Privado\\GlamFinds\\src\\assets\\img');
+        cb(null, 'C:\\Users\\danie\\OneDrive\\Escritorio\\GlamFinds-v2\\frontend\\src\\assets\\img');
     },
     filename: function (req, file, cb) {
         const ext = path.extname(file.originalname);

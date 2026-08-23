@@ -13,7 +13,7 @@ import { ParatiComponent } from './components/parati/parati.component';
 
 // ===== COMPONENTES DE PERFIL =====
 import { ProfileComponent } from './components/profile/profile.component';
-import { ProfileEditComponent } from './components/profile-edit/profile-edit.component';
+
 
 // ===== COMPONENTES DE PUBLICACIÓN =====
 import { PostCreateComponent } from './components/post-create/post-create.component';
@@ -32,6 +32,7 @@ import { NewsComponent } from './components/news/news.component';
 import { ChatbotComponent } from './components/chatbot/chatbot.component';
 import { ModificarCommComponent } from './components/modificar-comm/modificar-comm.component';
 import { MenuHorizontalComponent } from './components/menu-horizontal/menu-horizontal.component';
+import { GuardadosComponent } from './components/guardados/guardados.component';
 
 const routes: Routes = [
   // ===== AUTENTICACIÓN =====
@@ -48,7 +49,7 @@ const routes: Routes = [
   // ===== PERFIL =====
   { path: 'perfil', component: ProfileComponent },              // Perfil propio
   { path: 'perfil/:id', component: ProfileComponent },          // Perfil de otro usuario
-  { path: 'configuracion', component: ProfileEditComponent },   // Editar perfil
+  { path: 'guardados', component: GuardadosComponent },         // Posts guardados
 
   // ===== PUBLICACIONES =====
   { path: 'agregar', component: PostCreateComponent },          // Crear nuevo post

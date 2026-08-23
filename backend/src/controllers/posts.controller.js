@@ -6,7 +6,7 @@ const axios = require('axios');
 // Configuración de multer (ajusta la ruta según tu proyecto)
 const storage = multer.diskStorage({
     destination: function (req, file, cb) {
-        cb(null, 'C:\\Users\\danie\\OneDrive\\Escritorio\\Proyecto Privado\\GlamFinds\\src\\assets\\img');
+        cb(null,  'C:\\Users\\danie\\OneDrive\\Escritorio\\GlamFinds-v2\\frontend\\src\\assets\\img');
     },
     filename: function (req, file, cb) {
         const ext = path.extname(file.originalname);
@@ -96,7 +96,7 @@ exports.createPost = async (req, res) => {
 
     if (fileExtension === '.jpg' || fileExtension === '.jpeg' || fileExtension === '.png' || fileExtension === '.gif') {
         const fullPath = path.join(
-            'C:\\Users\\danie\\OneDrive\\Escritorio\\Proyecto Privado\\GlamFinds\\src\\assets\\img',
+            'C:\\Users\\danie\\OneDrive\\Escritorio\\GlamFinds-v2\\frontend\\src\\assets\\img',
             path_value
         );
         try {

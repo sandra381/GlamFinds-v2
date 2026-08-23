@@ -98,15 +98,15 @@ export class BackendService {
 
   // Actualizar perfil (antes /update2/:id)
   editarPosts2(id: number, formData: FormData) {
-    return this.hhtclient.post<Response2>(be_api + '/users/update2/' + id, formData);
+    return this.hhtclient.put<Response2>(be_api + '/users/update2/' + id, formData);
   }
 
   /*-----------POST GENERALES------------*/
 
   // Crear post (antes /agregarPost)
   insertarPosts(formData: FormData, userData: any): Observable<any> {
-    const url = `${be_api}/posts`;
-    console.log(be_api + '/posts');
+    const url = `${be_api}/posts/agregar`;
+    console.log(be_api + '/posts/agregar');
     formData.append('descripcion', userData.descripcion);
     formData.append('autor', userData.autor);
     formData.append('categoria', userData.categoria);
@@ -289,19 +289,14 @@ export class BackendService {
   }
 
   //Articulos (ahora en /articles)
-  insertarArticulos(formData: FormData, userData: any): Observable<any> {
-    const url = `${be_api}/articles`;
-    console.log(be_api + '/articles');
-    formData.append('titulo', userData.titulo);
-    formData.append('contenido', userData.contenido);
-    formData.append('autor', userData.autor);
-    formData.append('categoria', userData.categoria);
+  insertarArticulos(formData: FormData): Observable<any> {
+    const url = `${be_api}/articles/crear`;
     return this.hhtclient.post<ArticulosResponse>(url, formData);
-  }
+}
 
   obtenerArticulos() {
-    console.log(be_api + '/articles');
-    return this.hhtclient.get<ArticulosResponse>(be_api + '/articles', hhtoption);
+    console.log(be_api + '/articles/obtenerArticulos');
+    return this.hhtclient.get<ArticulosResponse>(be_api + '/articles/obtenerArticulos', hhtoption);
   }
 
   guardarLikesA(likes: Likes) {
@@ -367,8 +362,8 @@ export class BackendService {
   }
 
   obtenerFeed(): Observable<any> {
-    console.log(be_api + '/posts');
-    return this.hhtclient.get<Response2>(be_api + '/posts', hhtoption);
+    console.log(be_api + '/posts/obtener');
+    return this.hhtclient.get<Response2>(be_api + '/posts/obtener', hhtoption);
   }
 
   obtenerFeedTendencias(): Observable<any> {

@@ -32,7 +32,6 @@ import { TrendingComponent } from './components/trending/trending.component';
 import { FollowingComponent } from './components/following/following.component';
 import { ParatiComponent } from './components/parati/parati.component';
 import { ProfileComponent } from './components/profile/profile.component';
-import { ProfileEditComponent } from './components/profile-edit/profile-edit.component';
 import { PostCreateComponent } from './components/post-create/post-create.component';
 import { ArticleComponent } from './components/article/article.component';
 import { TryonComponent } from './components/tryon/tryon.component';
@@ -41,6 +40,10 @@ import { BackendService } from './services/backend.service';
 import { ModificarCommComponent } from './components/modificar-comm/modificar-comm.component';
 import { MenuLateralComponent } from './components/menu-lateral/menu-lateral.component';
 import { MenuHorizontalComponent } from './components/menu-horizontal/menu-horizontal.component';
+import { ArticuloCreateComponent } from './components/articulo-create/articulo-create.component';
+import { EditorModule } from '@tinymce/tinymce-angular';
+import { GuardadosComponent } from './components/guardados/guardados.component';
+
 
 @NgModule({
   declarations: [
@@ -52,7 +55,6 @@ import { MenuHorizontalComponent } from './components/menu-horizontal/menu-horiz
     FollowingComponent,
     ParatiComponent,
     ProfileComponent,
-    ProfileEditComponent,
     PostCreateComponent,
     ArticleComponent,
     MoodboardComponent,
@@ -63,7 +65,9 @@ import { MenuHorizontalComponent } from './components/menu-horizontal/menu-horiz
     ChatbotComponent,
     ModificarCommComponent,
     MenuLateralComponent,
-    MenuHorizontalComponent
+    MenuHorizontalComponent,
+    ArticuloCreateComponent,
+    GuardadosComponent
   ],
   imports: [
     BrowserModule,
@@ -80,7 +84,6 @@ import { MenuHorizontalComponent } from './components/menu-horizontal/menu-horiz
     MatToolbarModule,
     MatCardModule,
     FormsModule,
-    ReactiveFormsModule,
     MatFormFieldModule,
     MatButtonModule,
     MatTableModule,
@@ -90,6 +93,9 @@ import { MenuHorizontalComponent } from './components/menu-horizontal/menu-horiz
     MatInputModule,
     MatSnackBarModule,
     DragDropModule,
+    EditorModule,
+
+
   ],
   providers: [BackendService],
   bootstrap: [AppComponent],

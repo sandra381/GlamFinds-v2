@@ -16,8 +16,8 @@ const storage = multer.diskStorage({
 const upload = multer({ storage: storage });
 
 // Rutas principales
-router.post('/', upload.single('imagen'), postsController.createPost);
-router.get('/', postsController.getPosts);
+router.post('/agregar', upload.single('imagen'), postsController.createPost);
+router.get('/obtener', postsController.getPosts);
 router.get('/:id', postsController.getPostById);
 router.put('/:id', postsController.updatePost);
 router.delete('/:id', postsController.deletePost);

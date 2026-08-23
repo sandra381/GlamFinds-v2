@@ -1,5 +1,4 @@
-import { Component, Renderer2, ViewChild, ElementRef, OnInit, NgZone } from '@angular/core';
-import { Subscription } from 'rxjs';
+import { Component, Renderer2,OnInit, NgZone } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Comments } from 'src/app/models/Comments';
 import { Comments2 } from 'src/app/models/Comments2';
@@ -9,12 +8,9 @@ import { Save } from 'src/app/models/Save';
 import { BackendService } from 'src/app/services/backend.service';
 import { Likes_cant } from 'src/app/models/Likes_cant';
 import { MatDialog } from '@angular/material/dialog';
-import { Usuario } from 'src/app/models/Usuario';
 import { Usuario2 } from 'src/app/models/Usuario2';
 import { ModificarCommComponent } from '../modificar-comm/modificar-comm.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
-import { MoodboardComponent } from '../moodboard/moodboard.component';
-import { RandlookComponent } from '../randlook/randlook.component';
 import { PostCreateComponent } from '../post-create/post-create.component';
 
 interface ColorShade {

@@ -10,9 +10,6 @@ import { Posts } from 'src/app/models/Posts';
 import { Usuario2 } from 'src/app/models/Usuario2';
 import { BackendService } from 'src/app/services/backend.service';
 import { PostCreateComponent } from '../post-create/post-create.component';
-import { MoodboardComponent } from '../moodboard/moodboard.component';
-import { RandlookComponent } from '../randlook/randlook.component';
-import { TryonComponent } from '../tryon/tryon.component';
 import { ModificarCommComponent } from '../modificar-comm/modificar-comm.component';
 import { Save } from 'src/app/models/Save';
 
