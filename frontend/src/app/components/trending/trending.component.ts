@@ -106,7 +106,11 @@ export class TrendingComponent implements OnInit {
     ngOnInit(): void {
       this.cargarCategorias();
       this.backend1.obtenerFeedTendencias().subscribe(async x => {
-        this.dataSource = x.datos;
+        this.dataSource = x.datos.sort((a: any, b: any) => {
+            const scoreA = a.likes_count * 0.7 + Math.random() * 0.3;
+            const scoreB = b.likes_count * 0.7 + Math.random() * 0.3;
+            return scoreB - scoreA;
+        });
         console.log('Datos recibidos:', this.dataSource); // <-- VERIFICAR EN CONSOLA
 
         // ========== DEBUG: Verificar que llegue makeup_zones ==========

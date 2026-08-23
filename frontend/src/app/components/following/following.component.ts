@@ -105,7 +105,11 @@ export class FollowingComponent implements OnInit {
     ngOnInit(): void {
       this.cargarCategorias();
       this.backend1.obtenerFeedSiguiendo(this.usuariolog).subscribe(async x => {
-        this.dataSource = x.datos;
+        this.dataSource = x.datos.sort((a: any, b: any) => {
+            const scoreA = new Date(a.fecha_publicacion).getTime() * 0.8 + Math.random() * 0.2;
+            const scoreB = new Date(b.fecha_publicacion).getTime() * 0.8 + Math.random() * 0.2;
+            return scoreB - scoreA;
+        });
         console.log('Datos recibidos:', this.dataSource); // <-- VERIFICAR EN CONSOLA
 
         // ========== DEBUG: Verificar que llegue makeup_zones ==========

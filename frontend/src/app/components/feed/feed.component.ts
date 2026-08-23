@@ -102,7 +102,7 @@ export class FeedComponent implements OnInit {
   ngOnInit(): void {
     this.cargarCategorias();
     this.backend1.obtenerFeed().subscribe(async x => {
-      this.dataSource = x.datos;
+      this.dataSource = x.datos.sort(() => Math.random() - 0.5);
       console.log('Datos recibidos:', this.dataSource); // <-- VERIFICAR EN CONSOLA
 
       // ========== DEBUG: Verificar que llegue makeup_zones ==========
