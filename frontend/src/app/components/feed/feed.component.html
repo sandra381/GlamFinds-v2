@@ -138,12 +138,12 @@
                     <!-- Clickable image -->
                     <label [for]="'p'+articulo.id_post" class="pin-media-label">
                       <ng-container *ngIf="isImage(articulo.imagen); else cardVid">
-                        <img class="pin-img" [src]="'assets/img/'+articulo.imagen" alt="post" loading="lazy">
+                        <img class="pin-img" [src]="articulo.imagen" alt="post" loading="lazy">
                       </ng-container>
                       <ng-template #cardVid>
                         <video class="pin-img pin-img--video" autoplay [muted]="true" loop playsinline>
-                          <source [src]="'assets/img/'+articulo.imagen" type="video/mp4">
-                          <source [src]="'assets/img/'+articulo.imagen" type="video/webm">
+                          <source [src]="articulo.imagen" type="video/mp4">
+                          <source [src]="articulo.imagen" type="video/webm">
                         </video>
                       </ng-template>
                     </label>
@@ -178,7 +178,7 @@
                     <p class="pin-desc">{{articulo.descripcion}}</p>
                     <div class="pin-bottom-row">
                       <div class="pin-user" [routerLink]="['/perfil', articulo.id_user]">
-                        <img class="pin-avatar" src="assets/img/{{perfil[articulo.id_user]?.imagen}}" loading="lazy" alt="avatar">
+                        <img class="pin-avatar" [src]="perfil[articulo.id_user]?.imagen" loading="lazy" alt="avatar">
                         <span class="pin-username">{{articulo.usuario}}</span>
                       </div>
                       <div class="pin-likes">
@@ -203,7 +203,7 @@
                       <!-- Main media -->
                       <ng-container *ngIf="isImage(articulo.imagen); else modalVid">
                         <div class="modal-img-wrap" style="position: relative;">
-                          <img [src]="'assets/img/'+articulo.imagen" alt="post" class="modal-img" loading="lazy"
+                          <img [src]="articulo.imagen" alt="post" class="modal-img" loading="lazy"
                               (load)="onImageLoad($event, articulo)">
                           <!-- PRENDAS buttons over image -->
                           <ng-container *ngIf="articulo.prendas && articulo.prendas.length">
@@ -244,8 +244,8 @@
 
                       <ng-template #modalVid>
                         <video class="modal-vid" autoplay [muted]="true" loop playsinline controls width="100%">
-                          <source [src]="'assets/img/'+articulo.imagen" type="video/mp4">
-                          <source [src]="'assets/img/'+articulo.imagen" type="video/webm">
+                          <source [src]="articulo.imagen" type="video/mp4">
+                          <source [src]="articulo.imagen" type="video/webm">
                         </video>
                       </ng-template>
 
@@ -283,7 +283,7 @@
 
                       <!-- Header -->
                       <div class="modal-header-row">
-                        <img class="modal-avatar" src="assets/img/{{perfil[articulo.id_user]?.imagen}}" loading="lazy" alt="avatar">
+                        <img class="modal-avatar" [src]="perfil[articulo.id_user]?.imagen" loading="lazy" alt="avatar">
                         <div class="modal-user-info">
                           <span class="modal-username">
                             {{articulo.usuario}}
@@ -372,7 +372,7 @@
                         </div>
 
                         <div class="modal-input-row">
-                          <img class="modal-input-avatar" *ngIf="user.imagen" src="assets/img/{{user.imagen}}" alt="avatar">
+                          <img class="modal-input-avatar" [src]="user.imagen" alt="avatar">
                           <span class="modal-input-initials" *ngIf="!user.imagen">{{user.nombre ? user.nombre[0] : 'U'}}</span>
                           <button class="emoji-toggle-btn" (click)="toggleEmojiPicker(articulo.id_post)" type="button">😊</button>
                           <input [(ngModel)]="comentario[articulo.id_post]"

@@ -43,6 +43,7 @@ import { MenuHorizontalComponent } from './components/menu-horizontal/menu-horiz
 import { ArticuloCreateComponent } from './components/articulo-create/articulo-create.component';
 import { EditorModule } from '@tinymce/tinymce-angular';
 import { GuardadosComponent } from './components/guardados/guardados.component';
+import { ImageUrlPipe } from './pipes/image-url.pipe';
 
 
 @NgModule({
@@ -67,7 +68,8 @@ import { GuardadosComponent } from './components/guardados/guardados.component';
     MenuLateralComponent,
     MenuHorizontalComponent,
     ArticuloCreateComponent,
-    GuardadosComponent
+    GuardadosComponent,
+    ImageUrlPipe
   ],
   imports: [
     BrowserModule,

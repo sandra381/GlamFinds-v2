@@ -42,7 +42,8 @@
       <button class="publish-btn" (click)="openAgregar()">+ Publicar</button>
 
       <div class="avatar-btn" [matMenuTriggerFor]="menu" #menuTrigger>
-        <img *ngIf="user.imagen" src="assets/img/{{user.imagen}}" alt="avatar">
+        <!-- ✅ CORREGIDO: usa [src] sin assets/img/ -->
+        <img *ngIf="user.imagen" [src]="user.imagen" alt="avatar">
         <span *ngIf="!user.imagen" class="avatar-initials">
           {{ user.nombre ? user.nombre[0] : 'U' }}
         </span>
@@ -52,7 +53,8 @@
         <div class="dropdown-modal">
           <div class="dropdown-user-info" *ngIf="user.nombre">
             <div class="dropdown-avatar">
-              <img *ngIf="user.imagen" src="assets/img/{{user.imagen}}" alt="avatar">
+              <!-- ✅ CORREGIDO: aquí también -->
+              <img *ngIf="user.imagen" [src]="user.imagen" alt="avatar">
               <span *ngIf="!user.imagen">{{ user.nombre ? user.nombre[0] : 'U' }}</span>
             </div>
             <div class="dropdown-user-text">

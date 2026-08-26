@@ -21,7 +21,7 @@
                 <div class="avatar-ring">
                   <img *ngIf="imgUrl" [src]="imgUrl" class="avatar-img" alt="foto">
                   <img *ngIf="!imgUrl && posts_generales.imagen"
-                       [src]="'assets/img/' + posts_generales.imagen"
+                       [src]="posts_generales.imagen"
                        class="avatar-img" alt="foto">
                   <div *ngIf="!imgUrl && !posts_generales.imagen" class="avatar-placeholder">
                     <svg width="44" height="44" viewBox="0 0 24 24" fill="none"
@@ -89,7 +89,7 @@
                     <!-- Imagen actual o preview -->
                     <img *ngIf="imgUrl" [src]="imgUrl" class="edit-avatar-img" alt="foto">
                     <img *ngIf="!imgUrl && posts_generales.imagen"
-                         [src]="'assets/img/' + posts_generales.imagen"
+                         [src]="posts_generales.imagen"
                          class="edit-avatar-img" alt="foto">
                     <div *ngIf="!imgUrl && !posts_generales.imagen" class="edit-avatar-fallback">
                       <svg width="36" height="36" viewBox="0 0 24 24" fill="none"
@@ -154,11 +154,11 @@
                       <div class="post-card">
                         <div class="post-card-media">
                           <ng-container *ngIf="isImage(post.imagen); else postVideoED">
-                            <img class="post-card-img" [src]="'assets/img/' + post.imagen" [alt]="post.descripcion" loading="lazy">
+                            <img class="post-card-img" [src]="post.imagen" [alt]="post.descripcion" loading="lazy">
                           </ng-container>
                           <ng-template #postVideoED>
                             <video class="post-card-img" autoplay [muted]="true" loop playsinline>
-                              <source [src]="'assets/img/' + post.imagen" type="video/mp4">
+                              <source [src]="post.imagen" type="video/mp4">
                             </video>
                           </ng-template>
                         </div>
@@ -186,7 +186,7 @@
                     <div class="p-art-card" *ngFor="let art of dataSource5">
                       <div class="p-art-cover">
                         <img *ngIf="art.imagen" class="p-art-img"
-                             [src]="art.imagen.startsWith('http') ? art.imagen : 'assets/img/' + (art.imagen.includes('assets/img/') ? art.imagen.split('assets/img/')[1] : art.imagen)"
+                             [src]="art.imagen"
                              [alt]="art.titulo" loading="lazy">
                         <div class="p-art-placeholder" *ngIf="!art.imagen">
                           <span class="p-art-mono">GF</span>

@@ -5,8 +5,8 @@ const axios = require('axios');
 
 // ===== EXTRAER COLORES DE IMAGEN =====
 exports.extractColors = async (req, res) => {
-    const imageUrl = req.body.imageUrl;
     try {
+        const imageUrl = req.body.imageUrl;
         const palette = await Vibrant.from(imageUrl).getPalette();
         res.json(palette);
     } catch (error) {
@@ -16,88 +16,74 @@ exports.extractColors = async (req, res) => {
 };
 
 // ===== FUNCIONES AUXILIARES PARA LOOKS ALEATORIOS =====
-function obtenerPrendaAleatoria(tabla, callback) {
+async function obtenerPrendaAleatoria(tabla) {
     const query = `SELECT * FROM ${tabla} ORDER BY RAND() LIMIT 1`;
-    conn.query(query, (err, result) => {
-        if (err) throw err;
-        callback(result[0]);
-    });
+    const [rows] = await conn.query(query);
+    return rows[0];
 }
 
 // ===== GENERAR LOOK ALEATORIO (FEMENINO) =====
-exports.generateRandomLook = (req, res) => {
-    let look = {};
-    obtenerPrendaAleatoria('tops', (top) => {
-        look.top = top;
-        obtenerPrendaAleatoria('pantalones', (pantalon) => {
-            look.pantalon = pantalon;
-            obtenerPrendaAleatoria('accesorios', (accesorio) => {
-                look.accesorio = accesorio;
-                obtenerPrendaAleatoria('zapatos', (zapato) => {
-                    look.zapato = zapato;
-                    obtenerPrendaAleatoria('chaquetas', (chaqueta) => {
-                        look.chaqueta = chaqueta;
-                        res.json(look);
-                    });
-                });
-            });
-        });
-    });
+exports.generateRandomLook = async (req, res) => {
+    try {
+        const look = {
+            top: await obtenerPrendaAleatoria('tops'),
+            pantalon: await obtenerPrendaAleatoria('pantalones'),
+            accesorio: await obtenerPrendaAleatoria('accesorios'),
+            zapato: await obtenerPrendaAleatoria('zapatos'),
+            chaqueta: await obtenerPrendaAleatoria('chaquetas')
+        };
+        res.json(look);
+    } catch (error) {
+        console.error('Error generando look aleatorio:', error);
+        res.status(500).json({ error: 'Error generando look' });
+    }
 };
 
 // ===== GENERAR LOOK ALEATORIO (MASCULINO) =====
-exports.generateRandomLookM = (req, res) => {
-    let looks = {};
-    obtenerPrendaAleatoria('topsH', (topsH) => {
-        looks.topM = topsH;
-        obtenerPrendaAleatoria('pantalonesH', (pantalonH) => {
-            looks.pantalonM = pantalonH;
-            obtenerPrendaAleatoria('accesoriosH', (accesorioH) => {
-                looks.accesorioM = accesorioH;
-                obtenerPrendaAleatoria('zapatosH', (zapatoH) => {
-                    looks.zapatoM = zapatoH;
-                    obtenerPrendaAleatoria('chaquetasH', (chaquetaH) => {
-                        looks.chaquetaM = chaquetaH;
-                        res.json(looks);
-                    });
-                });
-            });
-        });
-    });
+exports.generateRandomLookM = async (req, res) => {
+    try {
+        const looks = {
+            topM: await obtenerPrendaAleatoria('topsH'),
+            pantalonM: await obtenerPrendaAleatoria('pantalonesH'),
+            accesorioM: await obtenerPrendaAleatoria('accesoriosH'),
+            zapatoM: await obtenerPrendaAleatoria('zapatosH'),
+            chaquetaM: await obtenerPrendaAleatoria('chaquetasH')
+        };
+        res.json(looks);
+    } catch (error) {
+        console.error('Error generando look masculino:', error);
+        res.status(500).json({ error: 'Error generando look' });
+    }
 };
 
 // ===== OBTENER PRENDAS (para try-on) =====
-exports.getPrendas = (req, res) => {
-    let obtener = 'SELECT url_imagen FROM prendas';
-    conn.query(obtener, (error, filas) => {
-        if (error) {
-            res.json({ status: 0, mensaje: "No hay valores en la BD", datos: [] });
-        } else {
-            res.json({ status: 1, mensaje: "Prendas obtenidas", datos: filas });
-        }
-    });
+exports.getPrendas = async (req, res) => {
+    try {
+        const query = 'SELECT url_imagen FROM prendas';
+        const [rows] = await conn.query(query);
+        res.json({ status: 1, mensaje: "Prendas obtenidas", datos: rows });
+    } catch (error) {
+        res.json({ status: 0, mensaje: "No hay valores en la BD", datos: [] });
+    }
 };
 
-// ===== OBTENER IMÁGENES DE POSTS (obsoleto, pero se mantiene) =====
-exports.getPostImages = (req, res) => {
-    let obtener = 'SELECT imagen FROM posts_generales';
-    conn.query(obtener, (error, filas) => {
-        if (error) {
-            res.json({ status: 0, mensaje: "No hay valores en la BD", datos: [] });
-        } else {
-            res.json({ status: 1, mensaje: "Imágenes obtenidas", datos: filas });
-        }
-    });
-
+// ===== OBTENER IMÁGENES DE POSTS (obsoleto) =====
+exports.getPostImages = async (req, res) => {
+    try {
+        const query = 'SELECT imagen FROM posts_generales';
+        const [rows] = await conn.query(query);
+        res.json({ status: 1, mensaje: "Imágenes obtenidas", datos: rows });
+    } catch (error) {
+        res.json({ status: 0, mensaje: "No hay valores en la BD", datos: [] });
+    }
 };
 
 // ===== OBTENER NOTICIAS DE MODA =====
 exports.getNews = async (req, res) => {
     try {
         const response = await axios.get(
-        `https://newsapi.org/v2/everything?q=fashion%20AND%20moda&sortBy=popularity&language=es&apiKey=${process.env.NEWS_API_KEY}`
+            `https://newsapi.org/v2/everything?q=fashion%20AND%20moda&sortBy=popularity&language=es&apiKey=${process.env.NEWS_API_KEY}`
         );
-
         const articles = response.data.articles.map(article => ({
             title: article.title,
             description: article.description,
@@ -105,18 +91,9 @@ exports.getNews = async (req, res) => {
             image: article.urlToImage,
             source: article.source.name
         }));
-
         res.json(articles);
-
     } catch (error) {
-
-        console.error(
-            'Error fetching data from NewsAPI:',
-            error.message
-        );
-
-        res.status(500).json({
-            message: 'Error fetching data from NewsAPI'
-        });
+        console.error('Error fetching data from NewsAPI:', error.message);
+        res.status(500).json({ message: 'Error fetching data from NewsAPI' });
     }
 };

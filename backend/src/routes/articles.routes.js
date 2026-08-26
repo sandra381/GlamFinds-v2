@@ -3,18 +3,7 @@ const router = express.Router();
 const articlesController = require('../controllers/articles.controller');
 const multer = require('multer');
 const path = require('path');
-
-// Configuración de almacenamiento
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, 'C:\\Users\\danie\\OneDrive\\Escritorio\\GlamFinds-v2\\frontend\\src\\assets\\img'); // carpeta donde guardar imágenes
-    },
-    filename: (req, file, cb) => {
-        const uniqueName = Date.now() + '-' + file.originalname;
-        cb(null, uniqueName);
-    }
-});
-const upload = multer({ storage: storage });
+const upload = require('../config/multer.js'); 
 
 // CRUD
 router.post('/crear', upload.single('imagen'), articlesController.createArticle);

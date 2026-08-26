@@ -36,49 +36,47 @@ exports.generateOutfit = async (req, res) => {
 };
 
 // ===== GUARDAR OUTFIT =====
-exports.saveOutfit = (req, res) => {
-    const { id_usuario, json_generado } = req.body;
+exports.saveOutfit = async (req, res) => {
+    try {
+        const { id_usuario, json_generado } = req.body;
 
-    if (!id_usuario || !json_generado) {
-        return res.json({ status: 0, mensaje: 'Faltan datos para guardar el outfit', datos: [] });
-    }
-
-    const jsonTexto = JSON.stringify(json_generado);
-    const query = 'INSERT INTO outfits_guardados (id_usuario, json_generado) VALUES (?, ?)';
-
-    conn.query(query, [id_usuario, jsonTexto], (err, resultado) => {
-        if (err) {
-            console.error('Error al guardar outfit:', err);
-            return res.json({ status: 0, mensaje: 'Error al guardar el outfit', datos: [] });
+        if (!id_usuario || !json_generado) {
+            return res.json({ status: 0, mensaje: 'Faltan datos para guardar el outfit', datos: [] });
         }
-        res.json({ status: 1, mensaje: 'Outfit guardado con éxito', datos: { id_outfit: resultado.insertId } });
-    });
+
+        const jsonTexto = JSON.stringify(json_generado);
+        const query = 'INSERT INTO outfits_guardados (id_usuario, json_generado) VALUES (?, ?)';
+        const [result] = await conn.query(query, [id_usuario, jsonTexto]);
+
+        res.json({ status: 1, mensaje: 'Outfit guardado con éxito', datos: { id_outfit: result.insertId } });
+    } catch (error) {
+        console.error('Error al guardar outfit:', error);
+        res.json({ status: 0, mensaje: 'Error al guardar el outfit', datos: [] });
+    }
 };
 
 // ===== OBTENER OUTFITS GUARDADOS =====
-exports.getSavedOutfits = (req, res) => {
-    const { id_usuario } = req.params;
-    const query = 'SELECT id_outfit, id_usuario, fecha, json_generado FROM outfits_guardados WHERE id_usuario = ? ORDER BY fecha DESC';
-
-    conn.query(query, [id_usuario], (err, filas) => {
-        if (err) {
-            console.error('Error al obtener outfits guardados:', err);
-            return res.json({ status: 0, mensaje: 'Error al obtener los outfits guardados', datos: [] });
-        }
-        res.json({ status: 1, mensaje: 'Outfits obtenidos con éxito', datos: filas });
-    });
+exports.getSavedOutfits = async (req, res) => {
+    try {
+        const { id_usuario } = req.params;
+        const query = 'SELECT id_outfit, id_usuario, fecha, json_generado FROM outfits_guardados WHERE id_usuario = ? ORDER BY fecha DESC';
+        const [rows] = await conn.query(query, [id_usuario]);
+        res.json({ status: 1, mensaje: 'Outfits obtenidos con éxito', datos: rows });
+    } catch (error) {
+        console.error('Error al obtener outfits guardados:', error);
+        res.json({ status: 0, mensaje: 'Error al obtener los outfits guardados', datos: [] });
+    }
 };
 
 // ===== ELIMINAR OUTFIT GUARDADO =====
-exports.deleteSavedOutfit = (req, res) => {
-    const { id_outfit } = req.params;
-    const query = 'DELETE FROM outfits_guardados WHERE id_outfit = ?';
-
-    conn.query(query, [id_outfit], (err) => {
-        if (err) {
-            console.error('Error al eliminar outfit guardado:', err);
-            return res.json({ status: 0, mensaje: 'Error al eliminar el outfit', datos: [] });
-        }
+exports.deleteSavedOutfit = async (req, res) => {
+    try {
+        const { id_outfit } = req.params;
+        const query = 'DELETE FROM outfits_guardados WHERE id_outfit = ?';
+        await conn.query(query, [id_outfit]);
         res.json({ status: 1, mensaje: 'Outfit eliminado con éxito', datos: [] });
-    });
+    } catch (error) {
+        console.error('Error al eliminar outfit guardado:', error);
+        res.json({ status: 0, mensaje: 'Error al eliminar el outfit', datos: [] });
+    }
 };

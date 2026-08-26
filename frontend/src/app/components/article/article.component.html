@@ -31,7 +31,7 @@
                 <!-- Cover image (clickable → opens modal) -->
                 <label [for]="'art'+articulo.id_post" class="art-card-cover">
                   <img *ngIf="articulo.imagen" class="art-card-img"
-                       [src]="articulo.imagen.startsWith('http') ? articulo.imagen : 'assets/img/'+articulo.imagen"
+                       [src]="articulo.imagen"
                        alt="portada" loading="lazy">
                   <div class="art-card-img-placeholder" *ngIf="!articulo.imagen">
                     <span class="art-placeholder-mono">GF</span>
@@ -47,7 +47,7 @@
                   <div class="art-card-excerpt" [innerHTML]="articulo.contenido"></div>
 
                   <div class="art-card-author-row">
-                    <img [src]="'assets/img/'+perfil[articulo.id_user]?.imagen"
+                    <img [src]="perfil[articulo.id_user]?.imagen"
                          alt="autor" class="art-author-avatar" loading="lazy">
                     <span class="art-author-name">{{articulo.usuario}}</span>
                   </div>
@@ -85,7 +85,7 @@
                   <!-- Left: imagen completa -->
                   <div class="art-modal-image-panel" *ngIf="articulo.imagen">
                     <img
-                      [src]="articulo.imagen.startsWith('http') ? articulo.imagen : 'assets/img/' + articulo.imagen"
+                      [src]="articulo.imagen"
                       class="adapt-image"
                       alt="Imagen del artículo"
                     />
@@ -97,7 +97,7 @@
                     <h1 class="art-modal-title">{{articulo.titulo}}</h1>
 
                     <div class="art-modal-meta">
-                      <img [src]="'assets/img/'+perfil[articulo.id_user]?.imagen"
+                      <img [src]="perfil[articulo.id_user]?.imagen"
                            alt="autor" class="art-modal-author-avatar" loading="lazy">
                       <span class="art-modal-author-name">{{articulo.usuario}}</span>
                     </div>
@@ -195,4 +195,3 @@
     </mat-drawer-container>
   </div>
 </div>
-

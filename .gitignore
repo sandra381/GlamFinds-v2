@@ -57,3 +57,9 @@ ai_service/__pycache__
 frontend/src/assets/img
 frontend/.angular/cache/16.2.16
 frontend/.angular/cache/
+
+glamfinds-infra/.terraform
+envs/dev/dev.tfvars
+.terraform.lock.hcl
+terraform.tfstate
+
