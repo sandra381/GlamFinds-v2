@@ -47,7 +47,7 @@ export class ArticleComponent implements OnInit , OnDestroy{
     contrase:'',
     imagen:''
   }
-  comentarios: Array<Comments2[]> = [];
+  comentarios: { [key: number]: any[] } = {};
   likes: Array<Likes_cant> = [];
   id_com: number;
   comentario: { [key: number]: string } = {};

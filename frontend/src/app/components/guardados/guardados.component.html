@@ -4,10 +4,8 @@
       <mat-drawer mode="side" opened><app-menu-lateral></app-menu-lateral></mat-drawer>
       <mat-drawer-content><app-menu-horizontal></app-menu-horizontal>
 
-        <!-- ── Tabs ───────────────────────────────────────── -->
         <div class="custom-tabs">
 
-          <!-- Tab header -->
           <div class="custom-tabs-header">
             <span class="custom-tab-label"
                   [class.active]="activeTab==='guardado' || activeTab==='posts'"
@@ -20,19 +18,16 @@
                   (click)="activeTab='outfits'">OUTFITS GUARDADOS</span>
           </div>
 
-          <!-- Tab body wrapper -->
           <div class="custom-tabs-body">
 
-          <!-- ── Tab: GUARDADO ───────────────────────────────── -->
+          <!-- ── Tab: GUARDADO ── -->
           <div class="tab-pane" [class.tab-hidden]="activeTab==='articulos' || activeTab==='outfits'">
             <div class="tab-content">
               <div class="post-grid" *ngIf="dataSource4.length > 0; else noGuardados">
                 <div class="post-item" *ngFor="let articulo1 of dataSource4; let i = index">
 
-                  <!-- Modal toggle -->
                   <input type="checkbox" [id]="'pg'+articulo1.id_post" class="pf-modal-toggle">
 
-                  <!-- Card -->
                   <div class="post-card">
                     <label [for]="'pg'+articulo1.id_post" class="post-card-media">
                       <ng-container *ngIf="isImage(articulo1.imagen); else videoBlock2">
@@ -44,7 +39,6 @@
                         </video>
                       </ng-template>
 
-                      <!-- 🔥 Hotspots prendas -->
                       <div class="hotspot-group" *ngIf="articulo1.prendas && articulo1.prendas.length">
                         <a *ngFor="let prenda of articulo1.prendas | slice:0:3; let idx = index"
                            [href]="getSearchUrl(prenda, articulo1)"
@@ -56,7 +50,6 @@
                         </a>
                       </div>
 
-                      <!-- 💄 Hotspots maquillaje -->
                       <div class="hotspot-group" *ngIf="articulo1.makeup_zones && articulo1.makeup_zones.length">
                         <a *ngFor="let zone of articulo1.makeup_zones | slice:0:3; let idx = index"
                            [href]="zone.product_link ? zone.product_link : getMakeupSearchUrl(zone, articulo1)"
@@ -71,7 +64,6 @@
 
                     <div class="post-card-body">
                       <div class="post-card-author">
-                        <!-- ✅ Avatar real del autor -->
                         <img class="post-card-avatar"
                              *ngIf="articulo1.autor_imagen"
                              [src]="articulo1.autor_imagen"
@@ -94,19 +86,15 @@
                     </div>
                   </div>
 
-                  <!-- Modal -->
                   <div class="pf-post-modal">
                     <label [for]="'pg'+articulo1.id_post" class="pf-modal-backdrop"></label>
                     <div class="pf-modal-box">
-
-                      <!-- LEFT -->
                       <div class="pf-modal-left">
                         <ng-container *ngIf="isImage(articulo1.imagen); else modalVidPG">
                           <div class="pf-modal-img-wrap">
                             <img [src]="articulo1.imagen" class="pf-modal-img" loading="lazy"
                                  (load)="onImageLoad($event, articulo1)">
 
-                            <!-- Botones de prendas sobre la imagen -->
                             <ng-container *ngIf="articulo1.prendas && articulo1.prendas.length">
                               <ng-container *ngFor="let prenda of articulo1.prendas | slice:0:6">
                                 <a *ngIf="prenda.bbox && prenda.bbox.length === 4"
@@ -114,28 +102,23 @@
                                    class="buttons garment-btn"
                                    [ngClass]="getButtonClass(prenda.label)"
                                    target="_blank"
-                                   rel="noopener noreferrer"
                                    [style.top]="getTopPosition(prenda.bbox, articulo1)"
                                    [style.left]="getLeftPosition(prenda.bbox, articulo1)"
-                                   [style.position]="'absolute'"
-                                   [title]="prenda.label">
+                                   [style.position]="'absolute'">
                                    🔗
                                 </a>
                               </ng-container>
                             </ng-container>
 
-                            <!-- Botones de maquillaje -->
                             <ng-container *ngIf="articulo1.makeup_zones && articulo1.makeup_zones.length">
                               <ng-container *ngFor="let zone of articulo1.makeup_zones | slice:0:6">
                                 <a *ngIf="zone.colors && zone.colors.vibrant"
                                    [href]="zone.product_link ? zone.product_link : getMakeupSearchUrl(zone, articulo1)"
                                    class="buttons garment-btn makeup-btn"
                                    target="_blank"
-                                   rel="noopener noreferrer"
                                    [style.top]="getMakeupTopPosition(zone, articulo1)"
                                    [style.left]="getMakeupLeftPosition(zone, articulo1)"
-                                   [style.position]="'absolute'"
-                                   [title]="zone.zone">
+                                   [style.position]="'absolute'">
                                    💄
                                 </a>
                               </ng-container>
@@ -148,15 +131,13 @@
                           </video>
                         </ng-template>
 
-                        <!-- Listas etiquetadas -->
                         <div class="tagged-section" *ngIf="articulo1.prendas && articulo1.prendas.length">
                           <p class="tagged-title">PRENDAS ETIQUETADAS</p>
                           <div class="tagged-list">
                             <a *ngFor="let prenda of articulo1.prendas | slice:0:6"
                                [href]="getSearchUrl(prenda, articulo1)"
                                target="_blank"
-                               class="tagged-pill"
-                               rel="noopener noreferrer">
+                               class="tagged-pill">
                               {{ prenda.label }}
                             </a>
                           </div>
@@ -168,15 +149,13 @@
                             <a *ngFor="let zone of articulo1.makeup_zones | slice:0:6"
                                [href]="zone.product_link ? zone.product_link : getMakeupSearchUrl(zone, articulo1)"
                                target="_blank"
-                               class="tagged-pill makeup-pill"
-                               rel="noopener noreferrer">
+                               class="tagged-pill makeup-pill">
                               {{ zone.zone }} {{ zone.has_makeup ? '💄' : '🚫' }}
                             </a>
                           </div>
                         </div>
                       </div>
 
-                      <!-- RIGHT -->
                       <div class="pf-modal-right">
                         <div class="pf-modal-header">
                           <img class="pf-modal-avatar" *ngIf="articulo1.autor_imagen" [src]="articulo1.autor_imagen" alt="avatar">
@@ -184,11 +163,7 @@
                             {{ articulo1.usuario?.charAt(0)?.toUpperCase() }}
                           </div>
                           <span class="pf-modal-username">{{ articulo1.usuario }}</span>
-                          <label [for]="'pg'+articulo1.id_post" class="pf-modal-close">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
-                              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
-                            </svg>
-                          </label>
+                          <label [for]="'pg'+articulo1.id_post" class="pf-modal-close">✕</label>
                         </div>
                         <div class="pf-modal-scroll">
                           <p class="pf-modal-desc">{{ articulo1.descripcion }}</p>
@@ -204,7 +179,8 @@
                           <p class="pf-empty" *ngIf="!comentarios[articulo1.id_post]?.length">Sé el primero en comentar ✨</p>
                           <div class="pf-comments-list">
                             <div class="pf-comment" *ngFor="let val of comentarios[articulo1.id_post] || []">
-                              <div class="pf-comment-avatar">{{ val.usuario?.[0]?.toUpperCase() }}</div>
+                              <img *ngIf="val.usuario_imagen" [src]="val.usuario_imagen" class="pf-comment-avatar-img" alt="avatar">
+                              <div class="pf-comment-avatar" *ngIf="!val.usuario_imagen">{{ val.usuario?.[0]?.toUpperCase() }}</div>
                               <div class="pf-comment-body">
                                 <span class="pf-comment-user">{{ val.usuario }}</span>
                                 <span class="pf-comment-text">{{ val.comments }}</span>
@@ -233,7 +209,7 @@
             </div>
           </div>
 
-          <!-- ── Tab 3: ARTÍCULOS GUARDADOS ─────────────────── -->
+          <!-- ── Tab: ARTÍCULOS GUARDADOS ── -->
           <div class="tab-pane" [class.tab-hidden]="activeTab!=='articulos'">
             <div class="tab-content">
               <div class="article-grid" *ngIf="dataSource5.length > 0; else noArticulosGuardados">
@@ -306,12 +282,11 @@
             </div>
           </div>
 
-          <!-- ── Tab: OUTFITS GUARDADOS ───────────────────── -->
+          <!-- ── Tab: OUTFITS ── -->
           <div class="tab-pane" [class.tab-hidden]="activeTab!=='outfits'">
             <div class="tab-content">
               <div class="outfit-saved-grid" *ngIf="dataSource6.length > 0; else noOutfits">
                 <div class="outfit-saved-card" *ngFor="let item of dataSource6; let i = index">
-
                   <div class="outfit-saved-collage">
                     <img *ngIf="item.outfit?.top?.imagen?.url" [src]="item.outfit.top.imagen.url" alt="top" loading="lazy">
                     <img *ngIf="item.outfit?.bottom?.imagen?.url" [src]="item.outfit.bottom.imagen.url" alt="bottom" loading="lazy">
@@ -325,7 +300,6 @@
                       <span class="outfit-saved-tag" *ngIf="item.outfit?.clima">{{ item.outfit.clima }}</span>
                     </div>
 
-                    <!-- Descripción completa con toggle -->
                     <p class="outfit-saved-reason" [class.expandido]="outfitExpandido[item.id_outfit]">
                       {{ item.outfit?.reason }}
                     </p>
@@ -335,7 +309,6 @@
                       {{ outfitExpandido[item.id_outfit] ? 'Ver menos ▲' : 'Ver más ▼' }}
                     </button>
 
-                    <!-- Detalles de las prendas -->
                     <div class="outfit-detalles" *ngIf="outfitExpandido[item.id_outfit]">
                       <div class="outfit-detalle-item" *ngIf="item.outfit?.top?.descripcion">
                         <span class="outfit-detalle-label">Top:</span>
@@ -362,7 +335,6 @@
                       </button>
                     </div>
                   </div>
-
                 </div>
               </div>
               <ng-template #noOutfits>
@@ -376,8 +348,8 @@
             </div>
           </div>
 
-          </div><!-- /custom-tabs-body -->
-        </div><!-- /custom-tabs -->
+          </div>
+        </div>
 
       </mat-drawer-content>
     </mat-drawer-container>
