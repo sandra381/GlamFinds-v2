@@ -1,7 +1,8 @@
 import { NgModule } from '@angular/core';
 import { RouterModule, Routes } from '@angular/router';
+import { AuthGuard } from './guards/auth.guard';
 
-// ===== COMPONENTES DE AUTENTICACIÓN =====
+// ===== COMPONENTES DE AUTENTICACIÓN (SIN GUARD) =====
 import { LoginComponent } from './components/login/login.component';
 import { RegisterComponent } from './components/register/register.component';
 
@@ -13,7 +14,6 @@ import { ParatiComponent } from './components/parati/parati.component';
 
 // ===== COMPONENTES DE PERFIL =====
 import { ProfileComponent } from './components/profile/profile.component';
-
 
 // ===== COMPONENTES DE PUBLICACIÓN =====
 import { PostCreateComponent } from './components/post-create/post-create.component';
@@ -30,44 +30,43 @@ import { OutfitIaComponent } from './components/outfit-ia/outfit-ia.component';
 // ===== COMPONENTES DE INFORMACIÓN =====
 import { NewsComponent } from './components/news/news.component';
 import { ChatbotComponent } from './components/chatbot/chatbot.component';
-import { ModificarCommComponent } from './components/modificar-comm/modificar-comm.component';
-import { MenuHorizontalComponent } from './components/menu-horizontal/menu-horizontal.component';
+
 import { GuardadosComponent } from './components/guardados/guardados.component';
 
 const routes: Routes = [
-  // ===== AUTENTICACIÓN =====
+  // ===== AUTENTICACIÓN (SIN GUARD) =====
   { path: '', component: LoginComponent },
+  { path: 'login', component: LoginComponent },
   { path: 'registrar', component: RegisterComponent },
 
-  // ===== FEEDS PRINCIPALES =====
-  { path: 'feed', component: FeedComponent },                    // Feed unificado (todas las categorías)
-  { path: 'tendencias', component: TrendingComponent },          // Feed de tendencias (algorítmico)
-  { path: 'siguiendo', component: FollowingComponent },          // Feed de usuarios seguidos
-  { path: 'parati', component: ParatiComponent },
-    {path:'menu2/:id' ,component: MenuHorizontalComponent},               // Feed personalizado "Para ti"
+  // ===== FEEDS (CON GUARD) =====
+  { path: 'feed', component: FeedComponent, canActivate: [AuthGuard] },
+  { path: 'tendencias', component: TrendingComponent, canActivate: [AuthGuard] },
+  { path: 'siguiendo', component: FollowingComponent, canActivate: [AuthGuard] },
+  { path: 'parati', component: ParatiComponent, canActivate: [AuthGuard] },
 
-  // ===== PERFIL =====
-  { path: 'perfil', component: ProfileComponent },              // Perfil propio
-  { path: 'perfil/:id', component: ProfileComponent },          // Perfil de otro usuario
-  { path: 'guardados', component: GuardadosComponent },         // Posts guardados
+  // ===== PERFIL (CON GUARD) =====
+  { path: 'perfil', component: ProfileComponent, canActivate: [AuthGuard] },
+  { path: 'perfil/:id', component: ProfileComponent, canActivate: [AuthGuard] },
 
-  // ===== PUBLICACIONES =====
-  { path: 'agregar', component: PostCreateComponent },          // Crear nuevo post
-  { path: 'editar/:id', component: PostCreateComponent },        // Editar post existente
-  { path: 'modComment', component: ModificarCommComponent }, // Editar comentario existente
+  // ===== PUBLICACIONES (CON GUARD) =====
+  { path: 'agregar', component: PostCreateComponent, canActivate: [AuthGuard] },
 
-  // ===== ARTÍCULOS =====
-  { path: 'articulo', component: ArticleComponent },            // Artículos de moda
+  // ===== ARTÍCULOS (CON GUARD) =====
+  { path: 'articulo', component: ArticleComponent, canActivate: [AuthGuard] },
 
-  // ===== HERRAMIENTAS =====
-  { path: 'moodboard', component: MoodboardComponent },         // Editor de moodboards
-  { path: 'randlook', component: RandlookComponent },           // Generador de looks aleatorios
-  { path: 'tryon', component: TryonComponent },                 // Armario virtual
-  { path: 'outfit-ia', component: OutfitIaComponent },          // Generador de outfits con IA
+  // ===== HERRAMIENTAS (CON GUARD) =====
+  { path: 'moodboard', component: MoodboardComponent, canActivate: [AuthGuard] },
+  { path: 'randlook', component: RandlookComponent, canActivate: [AuthGuard] },
+  { path: 'tryon', component: TryonComponent, canActivate: [AuthGuard] },
+  { path: 'outfit-ia', component: OutfitIaComponent, canActivate: [AuthGuard] },
 
-  // ===== INFORMACIÓN =====
-  { path: 'noticias', component: NewsComponent },               // Noticias de moda
-  { path: 'asistente', component: ChatbotComponent },           // Chatbot/Asistente IA
+  // ===== INFORMACIÓN (CON GUARD) =====
+  { path: 'noticias', component: NewsComponent, canActivate: [AuthGuard] },
+  { path: 'asistente', component: ChatbotComponent, canActivate: [AuthGuard] },
+
+  // ===== GUARDADOS (CON GUARD) =====
+  { path: 'guardados', component: GuardadosComponent, canActivate: [AuthGuard] },
 
   // ===== REDIRECCIÓN POR DEFECTO (404) =====
   { path: '**', redirectTo: '' }

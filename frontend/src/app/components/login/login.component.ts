@@ -59,6 +59,7 @@ export class LoginComponent {
         const id = x.datos[0].id_user;
         this.backend1.obtenerUsuario(id).subscribe(x => {
           localStorage.setItem('ids', String(id));
+          localStorage.setItem('user', JSON.stringify(this.user));
           const dest = x.datos[0].usuario === 'AdminUser' ? '/agregar' : '/feed';
           this.showToast('success', '¡Bienvenido/a de vuelta!', dest);
         });

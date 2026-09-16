@@ -44,7 +44,11 @@ export class MenuHorizontalComponent {
     this.dialog.open(PostCreateComponent, { restoreFocus: false, id: 'agregar' });
   }
 
-  cerrarSesion(){
+  cerrarSesion() {
+    localStorage.removeItem('ids');
+    localStorage.removeItem('user');
+    localStorage.clear();
+
     this.router.navigate(['/']);
   }
 }

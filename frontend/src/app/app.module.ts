@@ -44,6 +44,8 @@ import { ArticuloCreateComponent } from './components/articulo-create/articulo-c
 import { EditorModule } from '@tinymce/tinymce-angular';
 import { GuardadosComponent } from './components/guardados/guardados.component';
 import { ImageUrlPipe } from './pipes/image-url.pipe';
+import { HTTP_INTERCEPTORS } from '@angular/common/http';
+import { AuthInterceptor } from './interceptors/auth.interceptor';
 
 
 @NgModule({
@@ -99,7 +101,14 @@ import { ImageUrlPipe } from './pipes/image-url.pipe';
 
 
   ],
-  providers: [BackendService],
+  providers: [
+    BackendService,
+    {
+      provide: HTTP_INTERCEPTORS,
+      useClass: AuthInterceptor,
+      multi: true
+    }
+  ],
   bootstrap: [AppComponent],
   schemas: [CUSTOM_ELEMENTS_SCHEMA]
 })
