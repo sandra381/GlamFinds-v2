@@ -15,6 +15,7 @@ router.put('/update2/:id', upload.single('imagen'), usersController.updateProfil
 // Follows
 router.post('/follow', usersController.follow);
 router.post('/unfollow', usersController.unfollow);
+router.get('/is-following/:follower_id/:following_id', usersController.isFollowing);
 router.get('/followers/:id', usersController.getFollowers);
 router.get('/following/:id', usersController.getFollowing);
 router.get('/user-stats/:id', usersController.getUserStats);

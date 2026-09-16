@@ -120,6 +120,18 @@ exports.unfollow = async (req, res) => {
     }
 };
 
+exports.isFollowing = async (req, res) => {
+    try {
+        const { follower_id, following_id } = req.params;
+        const query = `SELECT 1 FROM followers WHERE follower_id = ? AND followed_id = ? LIMIT 1`;
+        const [rows] = await conn.query(query, [follower_id, following_id]);
+        res.json({ isFollowing: rows.length > 0 });
+    } catch (error) {
+        console.error('Error checking follow:', error);
+        res.status(500).json({ error: error.message });
+    }
+};
+
 exports.getFollowers = async (req, res) => {
     try {
         const userId = req.params.id;

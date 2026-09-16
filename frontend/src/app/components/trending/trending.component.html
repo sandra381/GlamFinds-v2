@@ -294,7 +294,12 @@
                             Ciudad de Guatemala
                           </span>
                         </div>
-                        <button class="follow-btn">+ Seguir</button>
+                         <button class="follow-btn"
+                                *ngIf="articulo.id_user !== usuariolog"
+                                (click)="toggleFollow(articulo.id_user, $event)"
+                                [ngClass]="{'following': isFollowingMap[articulo.id_user]}">
+                          {{ isFollowingMap[articulo.id_user] ? 'Siguiendo' : '+ Seguir' }}
+                        </button>
                         <label [for]="'p'+articulo.id_post" class="modal-close-x">
                           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
                         </label>

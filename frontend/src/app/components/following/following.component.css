@@ -1121,6 +1121,13 @@ img.imgs { width: 13px; height: 13px; display: block; }
   transition: background 0.2s ease;
   white-space: nowrap;
 }
+.follow-btn {
+  &.following {
+    background: transparent;
+    color: #333;
+    border: 1px solid #ccc;
+  }
+}
 .modal-publish:hover { background: #8B3A48; }
 
 /* ── Scrollbar (global hide) ─────────────────────────────── */

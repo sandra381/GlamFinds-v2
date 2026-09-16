@@ -171,6 +171,18 @@ export class BackendService {
     return this.hhtclient.get<Response7>(be_api + '/interactions/getComment/' + postId + '/' + navegante + '/' + id_comment, hhtoption);
   }
 
+  follow(follower_id: number, following_id: number): Observable<any> {
+    return this.hhtclient.post<any>(`${be_api}/users/follow`, { follower_id, following_id }, hhtoption);
+  }
+
+  unfollow(follower_id: number, following_id: number): Observable<any> {
+    return this.hhtclient.post<any>(`${be_api}/users/unfollow`, { follower_id, following_id }, hhtoption);
+  }
+
+  isFollowing(follower_id: number, following_id: number): Observable<any> {
+    return this.hhtclient.get<any>(`${be_api}/users/is-following/${follower_id}/${following_id}`, hhtoption);
+  }
+
   /*-----------POST PUBLICACIONES (PUBLICIDAD)------------*/
 
   // Crear post de publicidad (antes /agregarPostP)

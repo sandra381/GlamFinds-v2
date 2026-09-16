@@ -94,6 +94,7 @@ export class ParatiComponent implements OnInit,OnDestroy {
       // Propiedades para posicionamiento de etiquetas
       imagenDimensiones: { [key: number]: { width: number, height: number } } = {};
       private refreshSubscription!: Subscription;
+      isFollowingMap: { [key: number]: boolean } = {};
 
       constructor(
         private router: Router,
@@ -132,6 +133,14 @@ export class ParatiComponent implements OnInit,OnDestroy {
               console.log(`Post ${post.id_post} tiene maquillaje:`, post.makeup_zones);
               post.makeup_zones.forEach(zone => {
                 console.log(`  Zona: ${zone.zone}, product_link: ${zone.product_link}`);
+              });
+            }
+            if (post.id_user !== this.usuariolog && this.isFollowingMap[post.id_user] === undefined) {
+              this.backend1.isFollowing(this.usuariolog, post.id_user).subscribe({
+                next: (res) => {
+                  this.isFollowingMap[post.id_user] = res.isFollowing;
+                },
+                error: (err) => console.error('Error verificando follow:', err)
               });
             }
           });
@@ -177,6 +186,35 @@ export class ParatiComponent implements OnInit,OnDestroy {
             resolve();
           });
         });
+      }
+      toggleFollow(userId: number, event: Event) {
+        event.stopPropagation(); // Evita que se cierre el modal
+
+        const currentlyFollowing = this.isFollowingMap[userId];
+
+        if (currentlyFollowing) {
+          // Dejar de seguir
+          this.backend1.unfollow(this.usuariolog, userId).subscribe({
+            next: () => {
+              this.isFollowingMap[userId] = false;
+              this.snackBar.open('Has dejado de seguir a este usuario', 'Cerrar', { duration: 2000 });
+            },
+            error: (err: any) => {
+              console.error('Error al dejar de seguir:', err);
+            }
+          });
+        } else {
+          // Seguir
+          this.backend1.follow(this.usuariolog, userId).subscribe({
+            next: () => {
+              this.isFollowingMap[userId] = true;
+              this.snackBar.open('Ahora sigues a este usuario', 'Cerrar', { duration: 2000 });
+            },
+            error: (err: any) => {
+              console.error('Error al seguir:', err);
+            }
+          });
+        }
       }
 
       async countLikeAsync(id_com: number) {
