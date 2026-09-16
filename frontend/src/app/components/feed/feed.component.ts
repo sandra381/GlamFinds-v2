@@ -1,4 +1,4 @@
-import { Component, Renderer2,OnInit, NgZone } from '@angular/core';
+import { Component, Renderer2,OnInit, NgZone, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Comments } from 'src/app/models/Comments';
 import { Comments2 } from 'src/app/models/Comments2';
@@ -12,6 +12,8 @@ import { Usuario2 } from 'src/app/models/Usuario2';
 import { ModificarCommComponent } from '../modificar-comm/modificar-comm.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PostCreateComponent } from '../post-create/post-create.component';
+import { FeedRefreshService } from 'src/app/services/feed-refresh.service';
+import { Subscription } from 'rxjs';
 
 interface ColorShade {
   name: string;
@@ -37,7 +39,7 @@ interface MakeupZone {
   templateUrl: './feed.component.html',
   styleUrls: ['./feed.component.css']
 })
-export class FeedComponent implements OnInit {
+export class FeedComponent implements OnInit,OnDestroy {
   dataSource: Array<Posts> = new Array<Posts>();
   filteredItems: Array<Posts> = [];
   filteredItem: Array<Posts> = [];
@@ -89,17 +91,32 @@ export class FeedComponent implements OnInit {
 
   // Propiedades para posicionamiento de etiquetas
   imagenDimensiones: { [key: number]: { width: number, height: number } } = {};
+  private refreshSubscription!: Subscription;
 
   constructor(
     private router: Router,
     private backend1: BackendService,
+    private feedRefreshService: FeedRefreshService,
     private activateRouter: ActivatedRoute,
     public dialog: MatDialog,
     public snackBar: MatSnackBar,
     private renderer?: Renderer2,
-    private ngZone?: NgZone
+    private ngZone?: NgZone,
+
   ) { }
+  ngOnDestroy(): void {
+    if (this.refreshSubscription) {
+      this.refreshSubscription.unsubscribe();
+    }
+  }
   ngOnInit(): void {
+    this.cargarDatos();
+    this.refreshSubscription = this.feedRefreshService.refresh$.subscribe(() => {
+      this.cargarDatos();
+    });
+  }
+
+  cargarDatos(){
     this.cargarCategorias();
     this.backend1.obtenerFeed().subscribe(async x => {
       this.dataSource = x.datos.sort(() => Math.random() - 0.5);
@@ -142,7 +159,6 @@ export class FeedComponent implements OnInit {
   cargarCategorias() {
         this.backend1.obtenerCategorias().subscribe(
             data => {
-                // Asumiendo que la respuesta es { status: 1, datos: [...] }
                 this.categorias = data.datos || data;
             },
             error => console.error('Error cargando categorías', error)

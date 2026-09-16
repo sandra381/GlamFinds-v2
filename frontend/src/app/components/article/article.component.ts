@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, OnDestroy, OnInit } from '@angular/core';
 import { ModificarCommComponent } from '../modificar-comm/modificar-comm.component';
 import { Comments } from 'src/app/models/Comments';
 import { Articulos } from 'src/app/models/Articulos';
@@ -13,6 +13,8 @@ import { Likes } from 'src/app/models/Likes';
 
 import { Save } from 'src/app/models/Save';
 import { ArticuloCreateComponent } from '../articulo-create/articulo-create.component';
+import { Subscription } from 'rxjs/internal/Subscription';
+import { FeedRefreshService } from 'src/app/services/feed-refresh.service';
 
 
 @Component({
@@ -20,7 +22,7 @@ import { ArticuloCreateComponent } from '../articulo-create/articulo-create.comp
   templateUrl: './article.component.html',
   styleUrls: ['./article.component.css']
 })
-export class ArticleComponent {
+export class ArticleComponent implements OnInit , OnDestroy{
 
   dataSource: Array<Articulos> = new Array<Articulos>();
   perfil: Array<Usuario2> = [];
@@ -59,12 +61,24 @@ export class ArticleComponent {
   cant_like:0;
   usuariolog = Number(localStorage.getItem('ids'));
   mostrarMas: boolean[] = [];
-  constructor(private router:Router,private backend1: BackendService,private activateRouter:ActivatedRoute,public dialog: MatDialog,public snackBar: MatSnackBar){
+  private refreshSubscription!: Subscription;
+  constructor(private router:Router,private backend1: BackendService,private feedRefreshService: FeedRefreshService,private activateRouter:ActivatedRoute,public dialog: MatDialog,public snackBar: MatSnackBar){
     this.dataSource.forEach((articulo, index) => {
       this.mostrarMas[index] = false;
     });
   }
+  ngOnDestroy(): void {
+    if (this.refreshSubscription) {
+      this.refreshSubscription.unsubscribe();
+    }
+  }
   ngOnInit(): void {
+    this.cargarDatos();
+    this.refreshSubscription = this.feedRefreshService.refresh$.subscribe(() => {
+      this.cargarDatos();
+    });
+  }
+  cargarDatos() {
     this.backend1.obtenerArticulos().subscribe(async x => {
       this.dataSource = x.datos;
       console.log(x.datos);
@@ -91,6 +105,7 @@ export class ArticleComponent {
       this.inicializarEstados();
     });
   }
+
   async obtenerComentariosAsync(id_com: number) {
     return new Promise<void>(resolve => {
       this.backend1.obtenerComentariosA(id_com).subscribe(async z => {

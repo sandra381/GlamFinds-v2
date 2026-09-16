@@ -1,4 +1,4 @@
-import { Component, Renderer2,OnInit, NgZone } from '@angular/core';
+import { Component, Renderer2,OnInit, NgZone, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Comments } from 'src/app/models/Comments';
 import { Comments2 } from 'src/app/models/Comments2';
@@ -12,6 +12,8 @@ import { Usuario2 } from 'src/app/models/Usuario2';
 import { ModificarCommComponent } from '../modificar-comm/modificar-comm.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PostCreateComponent } from '../post-create/post-create.component';
+import { Subscription } from 'rxjs';
+import { FeedRefreshService } from 'src/app/services/feed-refresh.service';
 
 interface ColorShade {
   name: string;
@@ -38,7 +40,7 @@ interface MakeupZone {
   templateUrl: './parati.component.html',
   styleUrls: ['./parati.component.css']
 })
-export class ParatiComponent implements OnInit {
+export class ParatiComponent implements OnInit,OnDestroy {
 
   dataSource: Array<Posts> = new Array<Posts>();
       filteredItems: Array<Posts> = [];
@@ -91,17 +93,30 @@ export class ParatiComponent implements OnInit {
 
       // Propiedades para posicionamiento de etiquetas
       imagenDimensiones: { [key: number]: { width: number, height: number } } = {};
+      private refreshSubscription!: Subscription;
 
       constructor(
         private router: Router,
         private backend1: BackendService,
+        private feedRefreshService: FeedRefreshService,
         private activateRouter: ActivatedRoute,
         public dialog: MatDialog,
         public snackBar: MatSnackBar,
         private renderer?: Renderer2,
         private ngZone?: NgZone
       ) { }
+      ngOnDestroy(): void {
+       if (this.refreshSubscription) {
+          this.refreshSubscription.unsubscribe();
+        }
+      }
       ngOnInit(): void {
+        this.cargarDatos();
+        this.refreshSubscription = this.feedRefreshService.refresh$.subscribe(() => {
+          this.cargarDatos();
+        });
+      }
+      cargarDatos(){
         this.cargarCategorias();
         this.backend1.obtenerFeedParaTi(this.usuariolog).subscribe(async x => {
           this.dataSource = x.datos.sort((a: any, b: any) => {

@@ -1,4 +1,4 @@
-import { Component, Renderer2,OnInit, NgZone } from '@angular/core';
+import { Component, Renderer2,OnInit, NgZone, OnDestroy } from '@angular/core';
 import { ActivatedRoute, Router } from '@angular/router';
 import { Comments } from 'src/app/models/Comments';
 import { Comments2 } from 'src/app/models/Comments2';
@@ -12,6 +12,8 @@ import { Usuario2 } from 'src/app/models/Usuario2';
 import { ModificarCommComponent } from '../modificar-comm/modificar-comm.component';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { PostCreateComponent } from '../post-create/post-create.component';
+import { FeedRefreshService } from 'src/app/services/feed-refresh.service';
+import { Subscription } from 'rxjs';
 
 
 interface ColorShade {
@@ -39,7 +41,7 @@ interface MakeupZone {
   templateUrl: './following.component.html',
   styleUrls: ['./following.component.css']
 })
-export class FollowingComponent implements OnInit {
+export class FollowingComponent implements OnInit,OnDestroy {
 
     dataSource: Array<Posts> = new Array<Posts>();
     filteredItems: Array<Posts> = [];
@@ -92,17 +94,31 @@ export class FollowingComponent implements OnInit {
 
     // Propiedades para posicionamiento de etiquetas
     imagenDimensiones: { [key: number]: { width: number, height: number } } = {};
-
+    private refreshSubscription!: Subscription;
     constructor(
       private router: Router,
       private backend1: BackendService,
+      private feedRefreshService: FeedRefreshService,
       private activateRouter: ActivatedRoute,
       public dialog: MatDialog,
       public snackBar: MatSnackBar,
       private renderer?: Renderer2,
       private ngZone?: NgZone
     ) { }
+
     ngOnInit(): void {
+      this.cargarDatos();
+
+    this.refreshSubscription = this.feedRefreshService.refresh$.subscribe(() => {
+      this.cargarDatos();
+    });
+    }
+    ngOnDestroy(): void {
+      if (this.refreshSubscription) {
+        this.refreshSubscription.unsubscribe();
+      }
+    }
+    cargarDatos(){
       this.cargarCategorias();
       this.backend1.obtenerFeedSiguiendo(this.usuariolog).subscribe(async x => {
         this.dataSource = x.datos.sort((a: any, b: any) => {

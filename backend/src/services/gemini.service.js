@@ -8,7 +8,6 @@ function esperar(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
 }
 
-// Construye el prompt y llama a Gemini. Reintenta si el modelo está saturado (503).
 async function generarOutfitIA(ocasion, clima, colores, intento = 1) {
   const colorTexto = (colores && colores.length) ? colores.join(', ') : 'sin preferencia de color';
 

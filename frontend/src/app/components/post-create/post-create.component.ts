@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { BackendService } from 'src/app/services/backend.service';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { MatDialog } from '@angular/material/dialog';
+import { FeedRefreshService } from 'src/app/services/feed-refresh.service';
 
 @Component({
   selector: 'app-post-create',
@@ -17,7 +18,7 @@ export class PostCreateComponent {
   imgUrl: string | null = null;
   fileType: string | null = null;
 
-  constructor(private fb: FormBuilder,private router:Router, private backend:BackendService,public snackBar: MatSnackBar,public dialog: MatDialog) {
+  constructor(private fb: FormBuilder,private router:Router, private backend:BackendService,public snackBar: MatSnackBar,public dialog: MatDialog,private feedRefreshService:  FeedRefreshService) {
     const user = localStorage.getItem('ids');
     this.formGroups = this.fb.group({
       id:"",
@@ -51,12 +52,12 @@ export class PostCreateComponent {
 
     this.backend.insertarPosts(formData, this.formGroups.value).subscribe(
       (response) => {
+        this.feedRefreshService.triggerRefresh();
         this.snackBar.open('¡Post publicado con éxito! 🚀💫🌈 ¡Sigue brillando! ✨✨', 'Cerrar', {
           duration: 4000,
           panelClass: ['mensaje-exito']
         });
         this.limpiar();
-        location.reload();
       },
       (error) => {
         this.snackBar.open('¡Oops! No se pudo publicar el post. 😞🚫', 'Cerrar', {

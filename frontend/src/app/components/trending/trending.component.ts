@@ -1,4 +1,4 @@
-import { Component, NgZone, OnInit, Renderer2 } from '@angular/core';
+import { Component, NgZone, OnDestroy, OnInit, Renderer2 } from '@angular/core';
 import { MatDialog } from '@angular/material/dialog';
 import { MatSnackBar } from '@angular/material/snack-bar';
 import { ActivatedRoute, Router } from '@angular/router';
@@ -12,6 +12,8 @@ import { BackendService } from 'src/app/services/backend.service';
 import { PostCreateComponent } from '../post-create/post-create.component';
 import { ModificarCommComponent } from '../modificar-comm/modificar-comm.component';
 import { Save } from 'src/app/models/Save';
+import { Subscription } from 'rxjs/internal/Subscription';
+import { FeedRefreshService } from 'src/app/services/feed-refresh.service';
 
 
 interface ColorShade {
@@ -40,7 +42,7 @@ interface MakeupZone {
   templateUrl: './trending.component.html',
   styleUrls: ['./trending.component.css']
 })
-export class TrendingComponent implements OnInit {
+export class TrendingComponent implements OnInit,OnDestroy {
 
    dataSource: Array<Posts> = new Array<Posts>();
     filteredItems: Array<Posts> = [];
@@ -93,18 +95,31 @@ export class TrendingComponent implements OnInit {
 
     // Propiedades para posicionamiento de etiquetas
     imagenDimensiones: { [key: number]: { width: number, height: number } } = {};
+    private refreshSubscription!: Subscription;
 
     constructor(
       private router: Router,
       private backend1: BackendService,
+      private feedRefreshService: FeedRefreshService,
       private activateRouter: ActivatedRoute,
       public dialog: MatDialog,
       public snackBar: MatSnackBar,
       private renderer?: Renderer2,
       private ngZone?: NgZone
     ) { }
+    ngOnDestroy(): void {
+      if (this.refreshSubscription) {
+        this.refreshSubscription.unsubscribe();
+      }
+    }
     ngOnInit(): void {
-      this.cargarCategorias();
+      this.cargarDatos();
+      this.refreshSubscription = this.feedRefreshService.refresh$.subscribe(() => {
+        this.cargarDatos();
+      });
+    }
+    cargarDatos() {
+       this.cargarCategorias();
       this.backend1.obtenerFeedTendencias().subscribe(async x => {
         this.dataSource = x.datos.sort((a: any, b: any) => {
             const scoreA = a.likes_count * 0.7 + Math.random() * 0.3;
