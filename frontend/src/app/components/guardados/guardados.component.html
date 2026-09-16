@@ -26,7 +26,7 @@
           <!-- ── Tab: GUARDADO ───────────────────────────────── -->
           <div class="tab-pane" [class.tab-hidden]="activeTab==='articulos' || activeTab==='outfits'">
             <div class="tab-content">
-              <div class="post-grid">
+              <div class="post-grid" *ngIf="dataSource4.length > 0; else noGuardados">
                 <div class="post-item" *ngFor="let articulo1 of dataSource4; let i = index">
 
                   <!-- Modal toggle -->
@@ -43,17 +43,53 @@
                           <source [src]="articulo1.imagen" type="video/mp4">
                         </video>
                       </ng-template>
+
+                      <!-- 🔥 Hotspots prendas -->
+                      <div class="hotspot-group" *ngIf="articulo1.prendas && articulo1.prendas.length">
+                        <a *ngFor="let prenda of articulo1.prendas | slice:0:3; let idx = index"
+                           [href]="getSearchUrl(prenda, articulo1)"
+                           class="hotspot"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           [title]="prenda.label">
+                           {{ idx + 1 }}
+                        </a>
+                      </div>
+
+                      <!-- 💄 Hotspots maquillaje -->
+                      <div class="hotspot-group" *ngIf="articulo1.makeup_zones && articulo1.makeup_zones.length">
+                        <a *ngFor="let zone of articulo1.makeup_zones | slice:0:3; let idx = index"
+                           [href]="zone.product_link ? zone.product_link : getMakeupSearchUrl(zone, articulo1)"
+                           class="hotspot makeup-hotspot"
+                           target="_blank"
+                           rel="noopener noreferrer"
+                           [title]="zone.zone">
+                           💄{{ idx + 1 }}
+                        </a>
+                      </div>
                     </label>
+
                     <div class="post-card-body">
                       <div class="post-card-author">
-                        <div class="post-card-avatar-fallback">{{articulo1.usuario?.charAt(0)?.toUpperCase()}}</div>
-                        <span class="post-card-username">{{articulo1.usuario}}</span>
+                        <!-- ✅ Avatar real del autor -->
+                        <img class="post-card-avatar"
+                             *ngIf="articulo1.autor_imagen"
+                             [src]="articulo1.autor_imagen"
+                             alt="avatar">
+                        <div class="post-card-avatar-fallback" *ngIf="!articulo1.autor_imagen">
+                          {{ articulo1.usuario?.charAt(0)?.toUpperCase() }}
+                        </div>
+                        <span class="post-card-username">{{ articulo1.usuario }}</span>
                       </div>
-                      <p class="post-card-desc">{{articulo1.descripcion}}</p>
+                      <p class="post-card-desc">{{ articulo1.descripcion }}</p>
                       <div class="post-card-actions">
-                        <button class="action-icon" (click)="like(articulo1.id_post, i)" [ngClass]="{'active-like': toggle[i]}"><mat-icon>favorite</mat-icon></button>
-                        <span class="action-count">{{likes[articulo1.id_post]?.cantidad || 0}}</span>
-                        <button class="action-icon action-save active-save" (click)="unsaveGuardado(articulo1.id_post)"><mat-icon>bookmark</mat-icon></button>
+                        <button class="action-icon" (click)="like(articulo1.id_post, i)" [ngClass]="{'active-like': toggle[i]}">
+                          <mat-icon>favorite</mat-icon>
+                        </button>
+                        <span class="action-count">{{ likes[articulo1.id_post]?.cantidad || 0 }}</span>
+                        <button class="action-icon action-save active-save" (click)="unsaveGuardado(articulo1.id_post)">
+                          <mat-icon>bookmark</mat-icon>
+                        </button>
                       </div>
                     </div>
                   </div>
@@ -62,40 +98,116 @@
                   <div class="pf-post-modal">
                     <label [for]="'pg'+articulo1.id_post" class="pf-modal-backdrop"></label>
                     <div class="pf-modal-box">
+
+                      <!-- LEFT -->
                       <div class="pf-modal-left">
                         <ng-container *ngIf="isImage(articulo1.imagen); else modalVidPG">
-                          <img [src]="articulo1.imagen" class="pf-modal-img" loading="lazy">
+                          <div class="pf-modal-img-wrap">
+                            <img [src]="articulo1.imagen" class="pf-modal-img" loading="lazy"
+                                 (load)="onImageLoad($event, articulo1)">
+
+                            <!-- Botones de prendas sobre la imagen -->
+                            <ng-container *ngIf="articulo1.prendas && articulo1.prendas.length">
+                              <ng-container *ngFor="let prenda of articulo1.prendas | slice:0:6">
+                                <a *ngIf="prenda.bbox && prenda.bbox.length === 4"
+                                   [href]="getSearchUrl(prenda, articulo1)"
+                                   class="buttons garment-btn"
+                                   [ngClass]="getButtonClass(prenda.label)"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   [style.top]="getTopPosition(prenda.bbox, articulo1)"
+                                   [style.left]="getLeftPosition(prenda.bbox, articulo1)"
+                                   [style.position]="'absolute'"
+                                   [title]="prenda.label">
+                                   🔗
+                                </a>
+                              </ng-container>
+                            </ng-container>
+
+                            <!-- Botones de maquillaje -->
+                            <ng-container *ngIf="articulo1.makeup_zones && articulo1.makeup_zones.length">
+                              <ng-container *ngFor="let zone of articulo1.makeup_zones | slice:0:6">
+                                <a *ngIf="zone.colors && zone.colors.vibrant"
+                                   [href]="zone.product_link ? zone.product_link : getMakeupSearchUrl(zone, articulo1)"
+                                   class="buttons garment-btn makeup-btn"
+                                   target="_blank"
+                                   rel="noopener noreferrer"
+                                   [style.top]="getMakeupTopPosition(zone, articulo1)"
+                                   [style.left]="getMakeupLeftPosition(zone, articulo1)"
+                                   [style.position]="'absolute'"
+                                   [title]="zone.zone">
+                                   💄
+                                </a>
+                              </ng-container>
+                            </ng-container>
+                          </div>
                         </ng-container>
                         <ng-template #modalVidPG>
                           <video class="pf-modal-vid" autoplay [muted]="true" loop playsinline controls>
                             <source [src]="articulo1.imagen" type="video/mp4">
                           </video>
                         </ng-template>
+
+                        <!-- Listas etiquetadas -->
+                        <div class="tagged-section" *ngIf="articulo1.prendas && articulo1.prendas.length">
+                          <p class="tagged-title">PRENDAS ETIQUETADAS</p>
+                          <div class="tagged-list">
+                            <a *ngFor="let prenda of articulo1.prendas | slice:0:6"
+                               [href]="getSearchUrl(prenda, articulo1)"
+                               target="_blank"
+                               class="tagged-pill"
+                               rel="noopener noreferrer">
+                              {{ prenda.label }}
+                            </a>
+                          </div>
+                        </div>
+
+                        <div class="tagged-section" *ngIf="articulo1.makeup_zones && articulo1.makeup_zones.length">
+                          <p class="tagged-title">MAQUILLAJE RECOMENDADO</p>
+                          <div class="tagged-list">
+                            <a *ngFor="let zone of articulo1.makeup_zones | slice:0:6"
+                               [href]="zone.product_link ? zone.product_link : getMakeupSearchUrl(zone, articulo1)"
+                               target="_blank"
+                               class="tagged-pill makeup-pill"
+                               rel="noopener noreferrer">
+                              {{ zone.zone }} {{ zone.has_makeup ? '💄' : '🚫' }}
+                            </a>
+                          </div>
+                        </div>
                       </div>
+
+                      <!-- RIGHT -->
                       <div class="pf-modal-right">
                         <div class="pf-modal-header">
-                          <div class="pf-comment-avatar">{{articulo1.usuario?.charAt(0)?.toUpperCase()}}</div>
-                          <span class="pf-modal-username">{{articulo1.usuario}}</span>
+                          <img class="pf-modal-avatar" *ngIf="articulo1.autor_imagen" [src]="articulo1.autor_imagen" alt="avatar">
+                          <div class="pf-comment-avatar" *ngIf="!articulo1.autor_imagen">
+                            {{ articulo1.usuario?.charAt(0)?.toUpperCase() }}
+                          </div>
+                          <span class="pf-modal-username">{{ articulo1.usuario }}</span>
                           <label [for]="'pg'+articulo1.id_post" class="pf-modal-close">
-                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                            <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                              <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                            </svg>
                           </label>
                         </div>
                         <div class="pf-modal-scroll">
-                          <p class="pf-modal-desc">{{articulo1.descripcion}}</p>
+                          <p class="pf-modal-desc">{{ articulo1.descripcion }}</p>
                           <div class="pf-modal-stats">
-                            <button class="pf-icon-btn" (click)="like(articulo1.id_post, i)" [ngClass]="toggle[i] ? 'heart-active' : 'heart-inactive'"><mat-icon>favorite</mat-icon></button>
-                            <span class="pf-modal-count">{{likes[articulo1.id_post]?.cantidad || 0}}</span>
+                            <button class="pf-icon-btn" (click)="like(articulo1.id_post, i)" [ngClass]="toggle[i] ? 'heart-active' : 'heart-inactive'">
+                              <mat-icon>favorite</mat-icon>
+                            </button>
+                            <span class="pf-modal-count">{{ likes[articulo1.id_post]?.cantidad || 0 }}</span>
                             <button class="pf-icon-btn"><mat-icon>comment</mat-icon></button>
-                            <span class="pf-modal-count">{{comentarios[articulo1.id_post]?.length || 0}}</span>
+                            <span class="pf-modal-count">{{ comentarios[articulo1.id_post]?.length || 0 }}</span>
                           </div>
                           <hr class="pf-divider">
                           <p class="pf-empty" *ngIf="!comentarios[articulo1.id_post]?.length">Sé el primero en comentar ✨</p>
                           <div class="pf-comments-list">
                             <div class="pf-comment" *ngFor="let val of comentarios[articulo1.id_post] || []">
-                              <div class="pf-comment-avatar">{{val.usuario?.[0]?.toUpperCase()}}</div>
+                              <div class="pf-comment-avatar">{{ val.usuario?.[0]?.toUpperCase() }}</div>
                               <div class="pf-comment-body">
-                                <span class="pf-comment-user">{{val.usuario}}</span>
-                                <span class="pf-comment-text">{{val.comments}}</span>
+                                <span class="pf-comment-user">{{ val.usuario }}</span>
+                                <span class="pf-comment-text">{{ val.comments }}</span>
                               </div>
                             </div>
                           </div>
@@ -110,44 +222,46 @@
 
                 </div>
               </div>
+              <ng-template #noGuardados>
+                <div class="ed-empty-state">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#C8C0B8" stroke-width="1.4" stroke-linecap="round">
+                    <path d="M19 21l-7-5-7 5V5a2 2 0 0 1 2-2h10a2 2 0 0 1 2 2z"/>
+                  </svg>
+                  <p>Aún no tienes posts guardados</p>
+                </div>
+              </ng-template>
             </div>
-          </div><!-- /tab-pane guardado -->
+          </div>
 
           <!-- ── Tab 3: ARTÍCULOS GUARDADOS ─────────────────── -->
           <div class="tab-pane" [class.tab-hidden]="activeTab!=='articulos'">
             <div class="tab-content">
-              <div class="article-grid">
+              <div class="article-grid" *ngIf="dataSource5.length > 0; else noArticulosGuardados">
                 <ng-container *ngFor="let articulo2 of dataSource5; let i = index">
-
                   <div class="p-art-card">
-
-                    <!-- Cover image (clickable → opens modal) -->
                     <label [for]="'dart'+articulo2.id_post" class="p-art-cover" style="cursor:pointer">
-                      <img *ngIf="articulo2.imagen" class="p-art-img"
-                           [src]="articulo2.imagen"
-                           alt="portada" loading="lazy">
+                      <img *ngIf="articulo2.imagen" class="p-art-img" [src]="articulo2.imagen" alt="portada" loading="lazy">
                       <div class="p-art-placeholder" *ngIf="!articulo2.imagen">
                         <span class="p-art-mono">GF</span>
-                        <span class="p-art-cat">{{articulo2.name_categoria}}</span>
+                        <span class="p-art-cat">{{ articulo2.name_categoria }}</span>
                       </div>
-                      <span class="p-art-badge">{{articulo2.name_categoria}}</span>
+                      <span class="p-art-badge">{{ articulo2.name_categoria }}</span>
                     </label>
 
-                    <!-- Body -->
                     <label [for]="'dart'+articulo2.id_post" class="p-art-body" style="cursor:pointer; display:flex; flex-direction:column;">
-                      <h2 class="p-art-title">{{articulo2.titulo}}</h2>
+                      <h2 class="p-art-title">{{ articulo2.titulo }}</h2>
                       <div class="p-art-excerpt" [innerHTML]="articulo2.contenido"></div>
 
                       <div class="p-art-author-row">
-                        <div class="p-art-avatar">{{articulo2.usuario?.charAt(0)?.toUpperCase()}}</div>
-                        <span class="p-art-author">{{articulo2.usuario}}</span>
+                        <div class="p-art-avatar">{{ articulo2.usuario?.charAt(0)?.toUpperCase() }}</div>
+                        <span class="p-art-author">{{ articulo2.usuario }}</span>
                       </div>
 
                       <div class="p-art-bottom">
                         <div class="p-art-stats">
                           <span class="p-art-stat">
                             <mat-icon class="p-art-stat-icon">favorite</mat-icon>
-                            {{likes[articulo2.id_post]?.cantidad || 0}}
+                            {{ likes[articulo2.id_post]?.cantidad || 0 }}
                           </span>
                         </div>
                         <button mat-icon-button class="p-art-unsave-btn" (click)="unsaveArticulo(articulo2.id_post); $event.stopPropagation()">
@@ -155,53 +269,54 @@
                         </button>
                       </div>
                     </label>
-
                   </div>
 
-                  <!-- Toggle justo antes del modal para que el selector + funcione -->
                   <input type="checkbox" [id]="'dart'+articulo2.id_post" class="p-art-toggle">
                   <div class="p-art-modal">
                     <label [for]="'dart'+articulo2.id_post" class="p-art-backdrop"></label>
                     <div class="p-art-modal-box">
                       <label [for]="'dart'+articulo2.id_post" class="p-art-modal-close">✕</label>
                       <div class="p-art-modal-layout">
-
-                        <!-- Imagen izquierda -->
                         <div class="p-art-modal-img-panel" *ngIf="articulo2.imagen"
                              [style.background-image]="'url(' + articulo2.imagen + ')'">
                         </div>
-
-                        <!-- Contenido derecha -->
                         <div class="p-art-modal-content">
-                          <span class="p-art-modal-cat">{{articulo2.name_categoria}}</span>
-                          <h1 class="p-art-modal-title">{{articulo2.titulo}}</h1>
+                          <span class="p-art-modal-cat">{{ articulo2.name_categoria }}</span>
+                          <h1 class="p-art-modal-title">{{ articulo2.titulo }}</h1>
                           <div class="p-art-modal-author">
-                            <div class="p-art-avatar">{{articulo2.usuario?.charAt(0)?.toUpperCase()}}</div>
-                            <span class="p-art-author">{{articulo2.usuario}}</span>
+                            <div class="p-art-avatar">{{ articulo2.usuario?.charAt(0)?.toUpperCase() }}</div>
+                            <span class="p-art-author">{{ articulo2.usuario }}</span>
                           </div>
                           <hr class="p-art-hr">
                           <div class="p-art-modal-body" [innerHTML]="articulo2.contenido"></div>
                         </div>
-
                       </div>
                     </div>
                   </div>
-
                 </ng-container>
               </div>
+              <ng-template #noArticulosGuardados>
+                <div class="ed-empty-state">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#C8C0B8" stroke-width="1.4" stroke-linecap="round">
+                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><polyline points="14 2 14 8 20 8"/>
+                  </svg>
+                  <p>Aún no tienes artículos guardados</p>
+                </div>
+              </ng-template>
             </div>
-          </div><!-- /tab-pane articulos -->
+          </div>
+
           <!-- ── Tab: OUTFITS GUARDADOS ───────────────────── -->
           <div class="tab-pane" [class.tab-hidden]="activeTab!=='outfits'">
             <div class="tab-content">
-              <div class="outfit-saved-grid">
-                <div class="outfit-saved-card" *ngFor="let item of dataSource6">
+              <div class="outfit-saved-grid" *ngIf="dataSource6.length > 0; else noOutfits">
+                <div class="outfit-saved-card" *ngFor="let item of dataSource6; let i = index">
 
                   <div class="outfit-saved-collage">
-                    <img *ngIf="item.outfit?.top?.imagen?.url" [src]="item.outfit.top.imagen.url" alt="top">
-                    <img *ngIf="item.outfit?.bottom?.imagen?.url" [src]="item.outfit.bottom.imagen.url" alt="bottom">
-                    <img *ngIf="item.outfit?.shoes?.imagen?.url" [src]="item.outfit.shoes.imagen.url" alt="shoes">
-                    <img *ngIf="item.outfit?.accessory?.imagen?.url" [src]="item.outfit.accessory.imagen.url" alt="accessory">
+                    <img *ngIf="item.outfit?.top?.imagen?.url" [src]="item.outfit.top.imagen.url" alt="top" loading="lazy">
+                    <img *ngIf="item.outfit?.bottom?.imagen?.url" [src]="item.outfit.bottom.imagen.url" alt="bottom" loading="lazy">
+                    <img *ngIf="item.outfit?.shoes?.imagen?.url" [src]="item.outfit.shoes.imagen.url" alt="shoes" loading="lazy">
+                    <img *ngIf="item.outfit?.accessory?.imagen?.url" [src]="item.outfit.accessory.imagen.url" alt="accessory" loading="lazy">
                   </div>
 
                   <div class="outfit-saved-body">
@@ -209,17 +324,57 @@
                       <span class="outfit-saved-tag" *ngIf="item.outfit?.ocasion">{{ item.outfit.ocasion }}</span>
                       <span class="outfit-saved-tag" *ngIf="item.outfit?.clima">{{ item.outfit.clima }}</span>
                     </div>
-                    <p class="outfit-saved-reason">{{ item.outfit?.reason }}</p>
+
+                    <!-- Descripción completa con toggle -->
+                    <p class="outfit-saved-reason" [class.expandido]="outfitExpandido[item.id_outfit]">
+                      {{ item.outfit?.reason }}
+                    </p>
+                    <button class="outfit-toggle-btn"
+                            *ngIf="item.outfit?.reason && item.outfit.reason.length > 100"
+                            (click)="toggleOutfitDesc(item.id_outfit)">
+                      {{ outfitExpandido[item.id_outfit] ? 'Ver menos ▲' : 'Ver más ▼' }}
+                    </button>
+
+                    <!-- Detalles de las prendas -->
+                    <div class="outfit-detalles" *ngIf="outfitExpandido[item.id_outfit]">
+                      <div class="outfit-detalle-item" *ngIf="item.outfit?.top?.descripcion">
+                        <span class="outfit-detalle-label">Top:</span>
+                        <span class="outfit-detalle-text">{{ item.outfit.top.descripcion }}</span>
+                      </div>
+                      <div class="outfit-detalle-item" *ngIf="item.outfit?.bottom?.descripcion">
+                        <span class="outfit-detalle-label">Bottom:</span>
+                        <span class="outfit-detalle-text">{{ item.outfit.bottom.descripcion }}</span>
+                      </div>
+                      <div class="outfit-detalle-item" *ngIf="item.outfit?.shoes?.descripcion">
+                        <span class="outfit-detalle-label">Zapatos:</span>
+                        <span class="outfit-detalle-text">{{ item.outfit.shoes.descripcion }}</span>
+                      </div>
+                      <div class="outfit-detalle-item" *ngIf="item.outfit?.accessory?.descripcion">
+                        <span class="outfit-detalle-label">Accesorio:</span>
+                        <span class="outfit-detalle-text">{{ item.outfit.accessory.descripcion }}</span>
+                      </div>
+                    </div>
+
                     <div class="outfit-saved-footer">
                       <span class="outfit-saved-date">{{ item.fecha | date:'d MMM y' }}</span>
-                      <button class="action-icon action-save active-save" (click)="unsaveOutfit(item.id_outfit)"><mat-icon>bookmark</mat-icon></button>
+                      <button class="action-icon action-save active-save" (click)="unsaveOutfit(item.id_outfit)">
+                        <mat-icon>bookmark</mat-icon>
+                      </button>
                     </div>
                   </div>
 
                 </div>
               </div>
+              <ng-template #noOutfits>
+                <div class="ed-empty-state">
+                  <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#C8C0B8" stroke-width="1.4" stroke-linecap="round">
+                    <path d="M20.38 3.46L16 2a4 4 0 0 1-8 0L3.62 3.46a2 2 0 0 0-1.34 2.23l.58 3.57a1 1 0 0 0 .99.86H6v10c0 1.1.9 2 2 2h8a2 2 0 0 0 2-2V10h2.15a1 1 0 0 0 .99-.86l.58-3.57a2 2 0 0 0-1.34-2.23z"/>
+                  </svg>
+                  <p>Aún no tienes outfits guardados</p>
+                </div>
+              </ng-template>
             </div>
-          </div><!-- /tab-pane outfits -->
+          </div>
 
           </div><!-- /custom-tabs-body -->
         </div><!-- /custom-tabs -->

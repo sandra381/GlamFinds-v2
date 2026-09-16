@@ -3,19 +3,13 @@
     <mat-drawer-container style="width:100%;height:100%;">
       <mat-drawer mode="side" opened><app-menu-lateral></app-menu-lateral></mat-drawer>
       <mat-drawer-content><app-menu-horizontal></app-menu-horizontal>
-
-
         <div class="fondo">
-
           <!-- ── Sección header (max-width limitado) ────────── -->
           <div class="fondo-profile">
-
             <!-- Toggle oculto (CSS-only) -->
             <input type="checkbox" id="edit-toggle" class="edit-toggle-check">
-
             <!-- ── Header estilo Instagram ─────────────────── -->
             <div class="profile-header">
-
               <!-- Foto izquierda -->
               <div class="ph-avatar-col">
                 <div class="avatar-ring">
@@ -39,7 +33,7 @@
                 <!-- Fila: nombre + botón editar -->
                 <div class="ph-top-row">
                   <h1 class="ph-username">{{ posts_generales.usuario || 'usuario' }}</h1>
-                  <label for="edit-toggle" class="btn-edit-profile">Editar perfil</label>
+                  <label for="edit-toggle" class="btn-edit-profile" *ngIf="esMiPerfil">Editar perfil</label>
                 </div>
 
                 <!-- Estadísticas -->
@@ -64,8 +58,8 @@
             <!-- ── Descripción ─────────────────────────────── -->
             <p class="ph-bio">{{ posts_generales.descripcion }}</p>
 
-            <!-- ── Modal de edición ────────────────────────── -->
-            <div class="edit-form-panel">
+            <!-- ── Modal de edición (solo para el propio perfil) ── -->
+            <div class="edit-form-panel" *ngIf="esMiPerfil">
               <!-- Fondo oscuro: clic cierra el modal -->
               <label for="edit-toggle" class="edit-modal-backdrop"></label>
 
@@ -83,10 +77,9 @@
                   </label>
                 </div>
 
-                <!-- ── Foto de perfil circular (estilo Instagram) ── -->
+                <!-- ── Foto de perfil circular ── -->
                 <div class="edit-avatar-section">
                   <label class="edit-avatar-wrap" for="edit-avatar-input">
-                    <!-- Imagen actual o preview -->
                     <img *ngIf="imgUrl" [src]="imgUrl" class="edit-avatar-img" alt="foto">
                     <img *ngIf="!imgUrl && posts_generales.imagen"
                          [src]="posts_generales.imagen"
@@ -98,7 +91,6 @@
                         <circle cx="12" cy="7" r="4"/>
                       </svg>
                     </div>
-                    <!-- Overlay cámara al hover -->
                     <div class="edit-avatar-overlay">
                       <svg width="22" height="22" viewBox="0 0 24 24" fill="none"
                            stroke="currentColor" stroke-width="1.8" stroke-linecap="round">
@@ -149,10 +141,16 @@
               <!-- ── Tab 1: PUBLICACIONES ─────────────────── -->
               <div class="tab-pane" [class.tab-hidden]="activeTab!=='publicaciones'">
                 <div class="tab-content">
+
                   <div class="post-grid" *ngIf="dataSource.length > 0; else noPublicaciones">
-                    <div class="post-item" *ngFor="let post of dataSource">
+                    <div class="post-item" *ngFor="let post of dataSource; let i = index">
+
+                      <!-- Toggle del modal -->
+                      <input type="checkbox" [id]="'pp'+post.id_post" class="pf-modal-toggle">
+
+                      <!-- Card -->
                       <div class="post-card">
-                        <div class="post-card-media">
+                        <label [for]="'pp'+post.id_post" class="post-card-media">
                           <ng-container *ngIf="isImage(post.imagen); else postVideoED">
                             <img class="post-card-img" [src]="post.imagen" [alt]="post.descripcion" loading="lazy">
                           </ng-container>
@@ -161,21 +159,184 @@
                               <source [src]="post.imagen" type="video/mp4">
                             </video>
                           </ng-template>
-                        </div>
+
+                          <!-- 🔥 Hotspots prendas en miniatura -->
+                          <div class="hotspot-group" *ngIf="post.prendas && post.prendas.length">
+                            <a *ngFor="let prenda of post.prendas | slice:0:3; let idx = index"
+                               [href]="getSearchUrl(prenda, post)"
+                               class="hotspot"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               [title]="prenda.label">
+                               {{ idx + 1 }}
+                            </a>
+                          </div>
+
+                          <!-- 💄 Hotspots maquillaje en miniatura -->
+                          <div class="hotspot-group" *ngIf="post.makeup_zones && post.makeup_zones.length">
+                            <a *ngFor="let zone of post.makeup_zones | slice:0:3; let idx = index"
+                               [href]="zone.product_link ? zone.product_link : getMakeupSearchUrl(zone, post)"
+                               class="hotspot makeup-hotspot"
+                               target="_blank"
+                               rel="noopener noreferrer"
+                               [title]="zone.zone">
+                               💄{{ idx + 1 }}
+                            </a>
+                          </div>
+                        </label>
                         <div class="post-card-body">
                           <p class="post-card-desc">{{ post.descripcion }}</p>
+                          <div class="post-card-actions">
+                            <button class="action-icon" (click)="like(post.id_post, i); $event.stopPropagation()" [ngClass]="{'active-like': toggle[post.id_post]}">
+                              <mat-icon>favorite</mat-icon>
+                            </button>
+                            <span class="action-count">{{ likes[post.id_post]?.cantidad || 0 }}</span>
+                            <button class="action-icon">
+                              <mat-icon>comment</mat-icon>
+                            </button>
+                            <span class="action-count">{{ comentarios[post.id_post]?.length || 0 }}</span>
+                          </div>
                         </div>
                       </div>
+
+                      <!-- MODAL de detalle -->
+                      <div class="pf-post-modal">
+                        <label [for]="'pp'+post.id_post" class="pf-modal-backdrop"></label>
+                        <div class="pf-modal-box">
+
+                          <!-- LEFT: imagen + botones + listas -->
+                          <div class="pf-modal-left">
+                            <ng-container *ngIf="isImage(post.imagen); else modalVidPP">
+                              <div class="pf-modal-img-wrap">
+                                <img [src]="post.imagen" class="pf-modal-img" loading="lazy"
+                                     (load)="onImageLoad($event, post)">
+
+                                <!-- Botones de prendas SOBRE la imagen -->
+                                <ng-container *ngIf="post.prendas && post.prendas.length">
+                                  <ng-container *ngFor="let prenda of post.prendas | slice:0:6">
+                                    <a *ngIf="prenda.bbox && prenda.bbox.length === 4"
+                                       [href]="getSearchUrl(prenda, post)"
+                                       class="buttons garment-btn"
+                                       [ngClass]="getButtonClass(prenda.label)"
+                                       target="_blank"
+                                       rel="noopener noreferrer"
+                                       [style.top]="getTopPosition(prenda.bbox, post)"
+                                       [style.left]="getLeftPosition(prenda.bbox, post)"
+                                       [style.position]="'absolute'"
+                                       [title]="prenda.label">
+                                       🔗
+                                    </a>
+                                  </ng-container>
+                                </ng-container>
+
+                                <!-- Botones de maquillaje SOBRE la imagen -->
+                                <ng-container *ngIf="post.makeup_zones && post.makeup_zones.length">
+                                  <ng-container *ngFor="let zone of post.makeup_zones | slice:0:6">
+                                    <a *ngIf="zone.colors && zone.colors.vibrant"
+                                       [href]="zone.product_link ? zone.product_link : getMakeupSearchUrl(zone, post)"
+                                       class="buttons garment-btn makeup-btn"
+                                       target="_blank"
+                                       rel="noopener noreferrer"
+                                       [style.top]="getMakeupTopPosition(zone, post)"
+                                       [style.left]="getMakeupLeftPosition(zone, post)"
+                                       [style.position]="'absolute'"
+                                       [title]="zone.zone">
+                                       💄
+                                    </a>
+                                  </ng-container>
+                                </ng-container>
+                              </div>
+                            </ng-container>
+                            <ng-template #modalVidPP>
+                              <video class="pf-modal-vid" autoplay [muted]="true" loop playsinline controls>
+                                <source [src]="post.imagen" type="video/mp4">
+                              </video>
+                            </ng-template>
+
+                            <!-- Listas etiquetadas -->
+                            <div class="tagged-section" *ngIf="post.prendas && post.prendas.length">
+                              <p class="tagged-title">PRENDAS ETIQUETADAS</p>
+                              <div class="tagged-list">
+                                <a *ngFor="let prenda of post.prendas | slice:0:6"
+                                   [href]="getSearchUrl(prenda, post)"
+                                   target="_blank"
+                                   class="tagged-pill"
+                                   rel="noopener noreferrer">
+                                  {{ prenda.label }}
+                                </a>
+                              </div>
+                            </div>
+
+                            <div class="tagged-section" *ngIf="post.makeup_zones && post.makeup_zones.length">
+                              <p class="tagged-title">MAQUILLAJE RECOMENDADO</p>
+                              <div class="tagged-list">
+                                <a *ngFor="let zone of post.makeup_zones | slice:0:6"
+                                   [href]="zone.product_link ? zone.product_link : getMakeupSearchUrl(zone, post)"
+                                   target="_blank"
+                                   class="tagged-pill makeup-pill"
+                                   rel="noopener noreferrer">
+                                  {{ zone.zone }} {{ zone.has_makeup ? '💄' : '🚫' }}
+                                </a>
+                              </div>
+                            </div>
+                          </div>
+
+                          <!-- RIGHT -->
+                          <div class="pf-modal-right">
+                            <div class="pf-modal-header">
+                              <img class="pf-comment-avatar-img" *ngIf="perfil[post.id_user]?.imagen" [src]="perfil[post.id_user]?.imagen" alt="avatar">
+                              <div class="pf-comment-avatar" *ngIf="!perfil[post.id_user]?.imagen">
+                                {{ post.usuario?.charAt(0)?.toUpperCase() }}
+                              </div>
+                              <span class="pf-modal-username">{{ post.usuario }}</span>
+                              <label [for]="'pp'+post.id_post" class="pf-modal-close">
+                                <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round">
+                                  <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+                                </svg>
+                              </label>
+                            </div>
+                            <div class="pf-modal-scroll">
+                              <p class="pf-modal-desc">{{ post.descripcion }}</p>
+                              <div class="pf-modal-stats">
+                                <button class="pf-icon-btn" (click)="like(post.id_post, i)" [ngClass]="toggle[post.id_post] ? 'heart-active' : 'heart-inactive'">
+                                  <mat-icon>favorite</mat-icon>
+                                </button>
+                                <span class="pf-modal-count">{{ likes[post.id_post]?.cantidad || 0 }}</span>
+                                <button class="pf-icon-btn"><mat-icon>comment</mat-icon></button>
+                                <span class="pf-modal-count">{{ comentarios[post.id_post]?.length || 0 }}</span>
+                              </div>
+                              <hr class="pf-divider">
+                              <p class="pf-empty" *ngIf="!comentarios[post.id_post]?.length">Sé el primero en comentar ✨</p>
+                              <div class="pf-comments-list">
+                                <div class="pf-comment" *ngFor="let val of comentarios[post.id_post] || []">
+                                  <div class="pf-comment-avatar">{{ val.usuario?.[0]?.toUpperCase() }}</div>
+                                  <div class="pf-comment-body">
+                                    <span class="pf-comment-user">{{ val.usuario }}</span>
+                                    <span class="pf-comment-text">{{ val.comments }}</span>
+                                  </div>
+                                </div>
+                              </div>
+                            </div>
+                            <div class="pf-input-row">
+                              <input [(ngModel)]="comentario[post.id_post]" type="text" class="pf-input" placeholder="Añade un comentario..." (keydown.enter)="comment(post.id_post)">
+                              <button class="pf-publish" (click)="comment(post.id_post)">Publicar</button>
+                            </div>
+                          </div>
+                        </div>
+                      </div>
+
                     </div>
                   </div>
+
                   <ng-template #noPublicaciones>
                     <div class="ed-empty-state">
                       <svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="#C8C0B8" stroke-width="1.4" stroke-linecap="round">
                         <rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><polyline points="21 15 16 10 5 21"/>
                       </svg>
-                      <p>Aún no tienes publicaciones</p>
+                      <p>Aún no hay publicaciones</p>
                     </div>
                   </ng-template>
+
                 </div>
               </div>
 
@@ -207,7 +368,6 @@
                   </ng-template>
                 </div>
               </div>
-
             </div><!-- /custom-tabs-body -->
           </div><!-- /custom-tabs -->
 

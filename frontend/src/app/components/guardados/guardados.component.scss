@@ -597,9 +597,10 @@ img.imgs { width: 13px; height: 13px; display: block; }
   flex-shrink: 0;
   background: #0A0A0A;
   display: flex;
+  flex-direction: column;
   align-items: center;
-  justify-content: center;
-  overflow: hidden;
+  justify-content: flex-start;
+  overflow: overlay;
 }
 .pf-modal-img {
   width: 100%;
@@ -1019,4 +1020,191 @@ img.imgs { width: 13px; height: 13px; display: block; }
   font-family: 'DM Sans', sans-serif;
   font-size: 11px;
   color: #9E9690;
+}
+/* ============================================
+   HOTSPOTS
+   ============================================ */
+.post-card-media,
+.pf-modal-img-wrap {
+  position: relative;
+}
+
+.hotspot-group {
+  position: absolute;
+  bottom: 12px;
+  left: 12px;
+  display: flex;
+  gap: 6px;
+  z-index: 3;
+}
+
+.hotspot {
+  width: 26px;
+  height: 26px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  color: #2B2B2B;
+  font-size: 11px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  transition: transform 0.2s, background 0.2s;
+}
+
+.hotspot:hover { transform: scale(1.15); background: #FFF; }
+.hotspot.makeup-hotspot { background: rgba(255, 220, 235, 0.95); color: #B84A7A; }
+
+.garment-btn {
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  color: #2B2B2B;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-decoration: none;
+  font-size: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3);
+  transition: transform 0.2s;
+  border: 2px solid #FFF;
+  z-index: 10;
+}
+.garment-btn:hover { transform: scale(1.2); z-index: 20; }
+.garment-btn.btn-top { background: #FFE4E9; }
+.garment-btn.btn-bottom { background: #E4EEFF; }
+.garment-btn.btn-shoes { background: #FFF4D6; }
+.garment-btn.btn-accessory { background: #E8FFE4; }
+.garment-btn.makeup-btn { background: #FFE0EE; border-color: #FFB8D5; }
+
+.tagged-section {
+  padding: 12px 14px;
+  border-top: 1px solid #F0E8E0;
+}
+.tagged-title {
+  font-size: 11px;
+  font-weight: 700;
+  color: #8B8B8B;
+  margin: 0 0 8px;
+  letter-spacing: 1px;
+}
+.tagged-list { display: flex; flex-wrap: wrap; gap: 6px; }
+.tagged-pill {
+  padding: 4px 10px;
+  background: #F5EFE8;
+  color: #2B2B2B;
+  border-radius: 12px;
+  font-size: 11px;
+  text-decoration: none;
+  transition: background 0.2s;
+}
+.tagged-pill:hover { background: #EDE4DA; }
+.tagged-pill.makeup-pill { background: #FFE0EE; color: #B84A7A; }
+
+/* Wrapper para imagen dentro del modal */
+.pf-modal-img-wrap {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* Avatar del autor en el modal */
+.pf-modal-avatar {
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 1.5px solid #EDE9E2;
+  flex-shrink: 0;
+}
+
+/* ============================================
+   OUTFITS: expansión de descripción
+   ============================================ */
+.outfit-saved-reason {
+  display: -webkit-box;
+  -webkit-line-clamp: 3;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+  transition: all 0.3s ease;
+
+  &.expandido {
+    -webkit-line-clamp: unset;
+    display: block;
+    overflow: visible;
+  }
+}
+
+.outfit-toggle-btn {
+  background: none;
+  border: none;
+  color: #C4A882;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  padding: 4px 0;
+  margin-bottom: 8px;
+  transition: color 0.2s;
+}
+.outfit-toggle-btn:hover { color: #A8896A; }
+
+.outfit-detalles {
+  background: #F7F3EE;
+  border-radius: 8px;
+  padding: 10px 12px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from { opacity: 0; transform: translateY(-4px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+
+.outfit-detalle-item {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-family: 'DM Sans', sans-serif;
+  font-size: 11px;
+  line-height: 1.4;
+}
+
+.outfit-detalle-label {
+  font-weight: 700;
+  color: #C9687A;
+  font-size: 10px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+
+.outfit-detalle-text {
+  color: #3A3530;
+}
+
+/* Estado vacío */
+.ed-empty-state {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 60px 20px;
+  gap: 12px;
+  color: #A8A8A8;
+}
+.ed-empty-state p {
+  font-size: 14px;
+  margin: 0;
+  color: #A8A8A8;
+  font-family: 'DM Sans', sans-serif;
 }

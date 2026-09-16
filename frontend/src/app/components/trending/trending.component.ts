@@ -490,96 +490,52 @@ export class TrendingComponent implements OnInit,OnDestroy {
 
     // ========== POSICIONAMIENTO DE ETIQUETAS ==========
     onImageLoad(event: any, articulo: any) {
-      this.imagenDimensiones[articulo.id_post] = {
-        width: event.target.offsetWidth,
-        height: event.target.offsetHeight
-      };
+      const img = event.target as HTMLImageElement;
+      articulo._naturalWidth = img.naturalWidth;
+      articulo._naturalHeight = img.naturalHeight;
+      articulo._displayWidth = img.clientWidth;
+      articulo._displayHeight = img.clientHeight;
     }
 
     getTopPosition(bbox: number[], articulo: any): string {
-      const dims = this.imagenDimensiones[articulo.id_post];
-      if (!dims) return '0%';
-      const topPixel = bbox[1] * (dims.height / articulo.image_height);
-      return (topPixel / dims.height * 100) + '%';
+      if (!bbox || bbox.length !== 4 || !articulo._naturalHeight) return '0px';
+      const y1 = bbox[1];
+      const naturalH = articulo._naturalHeight;
+      const displayH = articulo._displayHeight || naturalH;
+      const offsetY = (displayH - naturalH * (displayH / naturalH)) / 2; // por si usa object-fit
+      const top = (y1 / naturalH) * 100;
+      return `${top}%`;
     }
 
     getLeftPosition(bbox: number[], articulo: any): string {
-      const dims = this.imagenDimensiones[articulo.id_post];
-      if (!dims) return '0%';
-      const leftPixel = bbox[0] * (dims.width / articulo.image_width);
-      return (leftPixel / dims.width * 100) + '%';
+      if (!bbox || bbox.length !== 4 || !articulo._naturalWidth) return '0px';
+      const x1 = bbox[0];
+      const naturalW = articulo._naturalWidth;
+      const left = (x1 / naturalW) * 100;
+      return `${left}%`;
     }
 
-    // ========== NUEVOS MÉTODOS PARA MAQUILLAJE ==========
-
-    /**
-     * Genera URL de búsqueda para maquillaje usando el product_link si existe,
-     * o crea una búsqueda con el nombre de la zona y el color vibrante.
-     */
-    getMakeupSearchUrl(zone: any, articulo: any): string {
-      if (zone.product_link) {
-        return zone.product_link;
-      }
-      const colorName = this.getColorName(zone.colors.vibrant);
-      const query = `${zone.zone} maquillaje ${colorName}`;
-      return `https://www.google.com/search?q=${encodeURIComponent(query)}&tbm=isch`;
-    }
-
-    /**
-     * Devuelve la posición vertical (top en %) para el botón de maquillaje.
-     * Usa un mapeo por zona porque no tenemos bbox.
-     */
     getMakeupTopPosition(zone: any, articulo: any): string {
-      const zonePositions: { [key: string]: string } = {
-        'labios': '75%',
-        'ojos': '25%',
-        'cejas': '15%',
-        'mejillas': '45%',
-        'frente': '10%',
-        'barbilla': '80%',
-        'nariz': '40%',
-        'párpados': '30%',
-        'pestañas': '20%',
-        'delineado': '25%'
-      };
-      const zoneLower = zone.zone.toLowerCase();
-      for (const key in zonePositions) {
-        if (zoneLower.includes(key)) {
-          return zonePositions[key];
-        }
-      }
-      // Si no hay mapeo, usar posición basada en índice
-      const index = articulo.makeup_zones.indexOf(zone);
-      const defaultPositions = ['10%', '30%', '50%', '70%', '20%', '60%'];
-      return defaultPositions[index % defaultPositions.length];
+      if (!zone.bbox || !articulo._naturalHeight) return '50%';
+      const y1 = zone.bbox[1];
+      const top = (y1 / articulo._naturalHeight) * 100;
+      return `${top}%`;
     }
 
-    /**
-     * Devuelve la posición horizontal (left en %) para el botón de maquillaje.
-     */
     getMakeupLeftPosition(zone: any, articulo: any): string {
-      const zonePositions: { [key: string]: string } = {
-        'labios': '50%',
-        'ojos': '30%',
-        'cejas': '35%',
-        'mejillas': '20%',
-        'frente': '50%',
-        'barbilla': '50%',
-        'nariz': '50%',
-        'párpados': '30%',
-        'pestañas': '30%',
-        'delineado': '30%'
-      };
-      const zoneLower = zone.zone.toLowerCase();
-      for (const key in zonePositions) {
-        if (zoneLower.includes(key)) {
-          return zonePositions[key];
-        }
-      }
-      const index = articulo.makeup_zones.indexOf(zone);
-      const defaultPositions = ['20%', '40%', '60%', '80%', '10%', '90%'];
-      return defaultPositions[index % defaultPositions.length];
+      if (!zone.bbox || !articulo._naturalWidth) return '50%';
+      const x1 = zone.bbox[0];
+      const left = (x1 / articulo._naturalWidth) * 100;
+      return `${left}%`;
     }
+    getMakeupSearchUrl(zone: any, articulo: any): string {
+      const color = zone.color_name || '';
+      const zoneName = zone.zone || '';
+      const query = encodeURIComponent(`${zoneName} makeup ${color}`);
+      return `https://www.google.com/search?tbm=shop&q=${query}`;
+    }
+
+
 
     // ========== MÉTODOS DE MODALES Y EMOJIS ==========
     toggleModal() { this.isModalOpen = !this.isModalOpen; }

@@ -1,14 +1,12 @@
 const conn = require('../config/database');
 
-// Función auxiliar para añadir prendas
+// Función auxiliar para añadir prendas Y maquillaje
 async function addPrendasToPosts(posts) {
     if (!posts || posts.length === 0) return posts;
-
     const postIds = posts.map(p => p.id_post);
     const placeholders = postIds.map(() => '?').join(',');
     const queryPrendas = `SELECT * FROM post_prendas WHERE id_post IN (${placeholders})`;
     const [prendasRows] = await conn.query(queryPrendas, postIds);
-
     const prendasPorPost = {};
     prendasRows.forEach(p => {
         if (!prendasPorPost[p.id_post]) prendasPorPost[p.id_post] = [];
@@ -25,10 +23,42 @@ async function addPrendasToPosts(posts) {
             mask_b64: p.mask_b64
         });
     });
+    const queryMakeup = `
+        SELECT id, id_post, zone, has_makeup, distance_to_skin, color_name, product_link,
+               vibrant_r, vibrant_g, vibrant_b,
+               muted_r, muted_g, muted_b,
+               third_r, third_g, third_b
+        FROM post_makeup_zones
+        WHERE id_post IN (${placeholders})
+    `;
+    const [makeupRows] = await conn.query(queryMakeup, postIds);
+    const makeupPorPost = {};
+    makeupRows.forEach(m => {
+        if (!makeupPorPost[m.id_post]) makeupPorPost[m.id_post] = [];
+        makeupPorPost[m.id_post].push({
+            id: m.id,
+            zone: m.zone,
+            has_makeup: Boolean(m.has_makeup),
+            distance_to_skin: m.distance_to_skin,
+            color_name: m.color_name,
+            product_link: m.product_link,
+            colors: {
+                vibrant: [m.vibrant_r, m.vibrant_g, m.vibrant_b],
+                muted: [m.muted_r, m.muted_g, m.muted_b],
+                third: [m.third_r, m.third_g, m.third_b]
+            }
+        });
+    });
 
+    // 3. Combinar
     return posts.map(post => ({
         ...post,
-        prendas: prendasPorPost[post.id_post] || []
+        face_detected: Boolean(post.face_detected),
+        skin_reference_color: post.skin_ref_r !== null && post.skin_ref_r !== undefined
+            ? [post.skin_ref_r, post.skin_ref_g, post.skin_ref_b]
+            : null,
+        prendas: prendasPorPost[post.id_post] || [],
+        makeup_zones: makeupPorPost[post.id_post] || []
     }));
 }
 
@@ -40,6 +70,7 @@ exports.getTrending = async (req, res) => {
             SELECT 
                 p.id_post, p.descripcion, p.imagen, p.autor, p.categoria,
                 p.image_width, p.image_height,
+                p.face_detected, p.skin_ref_r, p.skin_ref_g, p.skin_ref_b,
                 u.id_user, u.usuario,
                 c.id_categoria, c.name_categoria,
                 COUNT(DISTINCT l.id_like) AS likes_count,
@@ -72,6 +103,7 @@ exports.getFollowingFeed = async (req, res) => {
             SELECT 
                 p.id_post, p.descripcion, p.imagen, p.autor, p.categoria,
                 p.image_width, p.image_height,
+                p.face_detected, p.skin_ref_r, p.skin_ref_g, p.skin_ref_b,
                 u.id_user, u.usuario,
                 c.id_categoria, c.name_categoria
             FROM posts_generales p
@@ -126,6 +158,7 @@ exports.getParaTi = async (req, res) => {
             SELECT
                 p.id_post, p.descripcion, p.imagen, p.autor, p.categoria,
                 p.image_width, p.image_height,
+                p.face_detected, p.skin_ref_r, p.skin_ref_g, p.skin_ref_b,
                 u.id_user, u.usuario,
                 c.id_categoria, c.name_categoria,
                 SUM(upl.score) AS relevancia

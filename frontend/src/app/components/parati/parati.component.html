@@ -151,27 +151,28 @@
                     <!-- 🔥 PRENDAS hotspots -->
                     <div class="hotspot-group" *ngIf="articulo.prendas && articulo.prendas.length">
                       <a *ngFor="let prenda of articulo.prendas | slice:0:3; let idx = index"
-                         [href]="getSearchUrl(prenda, articulo)"
-                         class="hotspot"
-                         target="_blank"
-                         rel="noopener noreferrer"
-                         [title]="prenda.label + ' (' + (prenda.confidence | number:'1.0-0') + '%)'">
-                         {{ idx + 1 }}
+                        [href]="getSearchUrl(prenda, articulo)"
+                        class="hotspot"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        [title]="prenda.label + ' (' + (prenda.confidence | number:'1.0-0') + '%)'">
+                        {{ idx + 1 }}
                       </a>
                     </div>
 
-                    <!-- ========== NUEVO: MAQUILLAJE HOTSPOTS ========== -->
+                    <!-- 💄 MAQUILLAJE hotspots -->
                     <div class="hotspot-group" *ngIf="articulo.makeup_zones && articulo.makeup_zones.length">
                       <a *ngFor="let zone of articulo.makeup_zones | slice:0:3; let idx = index"
-                         [href]="zone.product_link ? zone.product_link : getMakeupSearchUrl(zone, articulo)"
-                         class="hotspot makeup-hotspot"
-                         target="_blank"
-                         rel="noopener noreferrer"
-                         [title]="zone.zone + (zone.has_makeup ? ' (con maquillaje)' : ' (sin maquillaje)')">
-                         💄{{ idx + 1 }}
+                        [href]="zone.product_link ? zone.product_link : getMakeupSearchUrl(zone, articulo)"
+                        class="hotspot makeup-hotspot"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        [title]="zone.zone + (zone.has_makeup ? ' (con maquillaje)' : ' (sin maquillaje)')">
+                        💄{{ idx + 1 }}
                       </a>
                     </div>
-                  </div>
+
+                  </div><!-- /pin-media -->
 
                   <!-- Text footer -->
                   <div class="pin-footer">
@@ -189,7 +190,7 @@
                       </div>
                     </div>
                   </div>
-                </div>
+                </div><!-- /pin-card -->
 
                 <!-- ── MODAL ────────────────────────── -->
                 <div class="post-modal">
@@ -205,7 +206,8 @@
                         <div class="modal-img-wrap" style="position: relative;">
                           <img [src]="articulo.imagen" alt="post" class="modal-img" loading="lazy"
                               (load)="onImageLoad($event, articulo)">
-                          <!-- PRENDAS buttons over image -->
+
+                          <!-- Botones de prendas SOBRE la imagen -->
                           <ng-container *ngIf="articulo.prendas && articulo.prendas.length">
                             <ng-container *ngFor="let prenda of articulo.prendas | slice:0:6">
                               <a *ngIf="prenda.bbox && prenda.bbox.length === 4"
@@ -223,7 +225,7 @@
                             </ng-container>
                           </ng-container>
 
-                          <!-- ========== NUEVO: BOTONES DE MAQUILLAJE SOBRE LA IMAGEN ========== -->
+                          <!-- Botones de maquillaje SOBRE la imagen -->
                           <ng-container *ngIf="articulo.makeup_zones && articulo.makeup_zones.length">
                             <ng-container *ngFor="let zone of articulo.makeup_zones | slice:0:6">
                               <a *ngIf="zone.colors && zone.colors.vibrant"
@@ -239,7 +241,7 @@
                               </a>
                             </ng-container>
                           </ng-container>
-                      </div>
+                        </div>
                       </ng-container>
 
                       <ng-template #modalVid>
@@ -254,29 +256,30 @@
                         <p class="tagged-title">PRENDAS ETIQUETADAS</p>
                         <div class="tagged-list">
                           <a *ngFor="let prenda of articulo.prendas | slice:0:6"
-                             [href]="getSearchUrl(prenda, articulo)"
-                             target="_blank"
-                             class="tagged-pill"
-                             rel="noopener noreferrer">
+                            [href]="getSearchUrl(prenda, articulo)"
+                            target="_blank"
+                            class="tagged-pill"
+                            rel="noopener noreferrer">
                             {{ prenda.label }}
                           </a>
                         </div>
                       </div>
 
-                      <!-- ========== NUEVO: MAQUILLAJE ETIQUETADO ========== -->
+                      <!-- MAQUILLAJE tagged list -->
                       <div class="tagged-section" *ngIf="articulo.makeup_zones && articulo.makeup_zones.length">
                         <p class="tagged-title">MAQUILLAJE RECOMENDADO</p>
                         <div class="tagged-list">
                           <a *ngFor="let zone of articulo.makeup_zones | slice:0:6"
-                             [href]="zone.product_link ? zone.product_link : getMakeupSearchUrl(zone, articulo)"
-                             target="_blank"
-                             class="tagged-pill makeup-pill"
-                             rel="noopener noreferrer">
+                            [href]="zone.product_link ? zone.product_link : getMakeupSearchUrl(zone, articulo)"
+                            target="_blank"
+                            class="tagged-pill makeup-pill"
+                            rel="noopener noreferrer">
                             {{ zone.zone }} {{ zone.has_makeup ? '💄' : '🚫' }}
                           </a>
                         </div>
                       </div>
-                    </div>
+
+                    </div><!-- /modal-left -->
 
                     <!-- RIGHT: info panel -->
                     <div class="modal-right">
@@ -391,10 +394,11 @@
                       </div>
 
                     </div><!-- /modal-right -->
+
                   </div><!-- /modal-box -->
                 </div><!-- /post-modal -->
 
-              </div>
+              </div><!-- /containers -->
             </ng-container>
           </ul>
 
