@@ -345,8 +345,8 @@
                         </div>
 
                         <div class="modal-input-row">
-                          <img class="modal-input-avatar" [src]="user.imagen" alt="avatar">
-                          <span class="modal-input-initials" *ngIf="!user.imagen">{{user.nombre ? user.nombre[0] : 'U'}}</span>
+                          <img class="modal-input-avatar" *ngIf="user?.imagen" [src]="user.imagen" alt="avatar">
+                          <span class="modal-input-initials" *ngIf="!user?.imagen">{{ user?.nombre ? user.nombre[0] : 'U' }}</span>
                           <button class="emoji-toggle-btn" (click)="toggleEmojiPicker(articulo.id_post)" type="button">😊</button>
                           <input [(ngModel)]="comentario[articulo.id_post]"
                                  [id]="'comment-input-' + articulo.id_post"

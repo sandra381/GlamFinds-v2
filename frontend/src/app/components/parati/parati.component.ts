@@ -112,6 +112,17 @@ export class ParatiComponent implements OnInit,OnDestroy {
         }
       }
       ngOnInit(): void {
+        const userId = Number(localStorage.getItem('ids'));
+        if (userId) {
+          this.backend1.obtenerUsuario(userId).subscribe({
+            next: (res: any) => {
+              if (res.datos && res.datos.length > 0) {
+                this.user = res.datos[0];
+              }
+            },
+            error: (err: any) => console.error('Error cargando usuario logueado:', err)
+          });
+        }
         this.cargarDatos();
         this.refreshSubscription = this.feedRefreshService.refresh$.subscribe(() => {
           this.cargarDatos();
